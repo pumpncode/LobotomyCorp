@@ -82,6 +82,13 @@ return {
                     "\"{C:red}Manager{}\".",
                 }
             },
+            und_j_lobc_silent_orchestra = {
+                name = "T-01-31",
+                text = {
+                    "From break and ruin,",
+                    "the most beautiful performance begins.",
+                }
+            },
             und_j_lobc_big_bird = {
                 name = "O-02-40",
                 text = {
@@ -646,16 +653,16 @@ return {
             dis_j_lobc_happy_teddy_bear_2 = {
                 name = "A Teddy Bear",
                 text = {
-                    "Upgrade level of played",
-                    "{C:attention}poker hand #1#{} time",
+                    "Upgrades level of played",
+                    "{C:attention}poker hand{} once",
                     "{C:attention}(#4#/6){} ..."
                 }
             },
             j_lobc_happy_teddy_bear = {
                 name = "Happy Teddy Bear",
                 text = {
-                    "Upgrade level of played",
-                    "{C:attention}poker hand #1#{} time",
+                    "Upgrades level of played",
+                    "{C:attention}poker hand{} once",
                     "{s:0.15} {}",
                     "If {C:attention}consecutive{} hands are",
                     "the same {C:attention}poker hand{},",
@@ -872,6 +879,48 @@ return {
                     "take its skin if this Abnormality",
                     "is adjacent to one",
                     "{C:inactive}(once per round)"
+                }
+            },
+
+            dis_j_lobc_silent_orchestra_1 = {
+                name = "O-06-20",
+                text = {
+                    "{C:attention}(#3#/2){} ...",
+                    "{C:attention}(#4#/5){} ...",
+                    "{C:attention}(#5#/7){} ..."
+                }
+            },
+            dis_j_lobc_silent_orchestra_2 = {
+                name = "O-06-20",
+                text = {
+                    "When round starts, shuffles",
+                    "{C:attention}#1#{} into the deck",
+                    "{C:attention}(#4#/5){} ...",
+                    "{C:attention}(#5#/7){} ..."
+                }
+            },
+            dis_j_lobc_silent_orchestra_3 = {
+                name = "O-06-20",
+                text = {
+                    "When round starts, shuffles",
+                    "{C:attention}#1#{} into the deck",
+                    "{s:0.15} {}",
+                    "When {C:attention}#1#{} is drawn,",
+                    "{C:attention}#2#{} is shuffled next Blind",
+                    "{C:attention}(#5#/7){} ..."
+                }
+            },
+            j_lobc_silent_orchestra = {
+                name = "The Silent Orchestra",
+                text = {
+                    "When round starts, shuffles",
+                    "{C:attention}#1#{} into the deck",
+                    "{s:0.15} {}",
+                    "When {C:attention}#1#{} is drawn,",
+                    "{C:attention}#2#{} is shuffled next Blind",
+                    "{s:0.15} {}",
+                    "When round ends, or when this Abnormality",
+                    "is removed, removes all {C:attention}Movements",
                 }
             },
 
@@ -1314,6 +1363,7 @@ return {
                 name = "F-01-57",
                 text = {
                     "{C:attention}(#5#/1){} ...",
+                    "{C:purple}[Active Ability (Hand Available)]",
                     "{C:attention}(#6#/3){} ...",
                     "{C:attention}(#7#/7){} ...",
                 }
@@ -1323,6 +1373,8 @@ return {
                 text = {
                     "Whenever there are no {C:marked}Marked{} cards,",
                     "a random playing card becomes {C:marked}Marked{}",
+                    "{s:0.15} {}",
+                    "{C:purple}[Active Ability (Hand Available)]",
                     "{C:attention}(#6#/3){} ...",
                     "{C:attention}(#7#/7){} ...",
                 }
@@ -1358,6 +1410,7 @@ return {
                 name = "F-01-57",
                 text = {
                     "{C:attention}(#5#/1){} ...",
+                    "{C:purple}[Active Ability (Hand Available)]",
                     "{C:attention}(#6#/3){} ...",
                     "{C:attention}(#7#/7){} ...",
                 }
@@ -1366,6 +1419,8 @@ return {
                 name = "F-01-57",
                 text = {
                     "{C:marked}Marks{} {C:attention}F-02-58{}",
+                    "{s:0.15} {}",
+                    "{C:purple}[Active Ability (Hand Available)]",
                     "{C:attention}(#6#/3){} ...",
                     "{C:attention}(#7#/7){} ...",
                 }
@@ -1403,6 +1458,7 @@ return {
                 name = "F-02-58",
                 text = {
                     "{C:attention}(#3#/1){} ...",
+                    "{C:purple}[Active Ability (In Round)]",
                     "{C:attention}(#4#/3){} ...",
                     "{C:attention}(#5#/6){} ...",
                 }
@@ -1412,6 +1468,8 @@ return {
                 text = {
                     "When {C:attention}Blind{} is selected,",
                     "{C:devoured}devours{} a random Joker",
+                    "{s:0.15} {}",
+                    "{C:purple}[Active Ability (In Round)]",
                     "{C:attention}(#4#/3){} ...",
                     "{C:attention}(#5#/6){} ...",
                 }
@@ -1446,6 +1504,7 @@ return {
                 name = "F-02-58",
                 text = {
                     "{C:attention}(#3#/1){} ...",
+                    "{C:purple}[Active Ability (In Round)]",
                     "{C:attention}(#4#/3){} ...",
                     "{C:attention}(#5#/6){} ...",
                 }
@@ -1455,6 +1514,8 @@ return {
                 text = {
                     "When {C:attention}Blind{} is selected,",
                     "{C:devoured}devours {C:attention}F-01-57",
+                    "{s:0.15} {}",
+                    "{C:purple}[Active Ability (In Round)]",
                     "{C:attention}(#4#/3){} ...",
                     "{C:attention}(#5#/6){} ...",
                 }
@@ -1808,6 +1869,7 @@ return {
             dis_j_lobc_giant_tree_sap_1 = {
                 name = "T-09-80",
                 text = {
+                    "{C:purple}[Active Ability (In Round)]",
                     "{C:attention}(#6#/3){} ...",
                     "{C:attention}(#7#/5){} ...",
                     "{C:attention}(#8#/7){} ...",
@@ -1879,6 +1941,7 @@ return {
             dis_j_lobc_iron_maiden_1 = {
                 name = "T-09-85",
                 text = {
+                    "{C:purple}[Active Ability (In Round)]",
                     "{C:attention}(#7#/1){} ...",
                     "{C:attention}(#8#/3){} ...",
                     "{C:attention}(#9#/5){} ...",
@@ -1929,6 +1992,7 @@ return {
                 name = "T-09-86",
                 text = {
                     "{C:attention}(#4#/2){} ...",
+                    "{C:purple}[Active Ability (In Round)]",
                     "{C:attention}(#5#/4){} ...",
                     "{C:attention}(#6#/6){} ...",
                 }
@@ -1938,6 +2002,8 @@ return {
                 text = {
                     "Every {C:attention}#3#{} seconds when in control,",
                     "a light will be {C:enchanted}illuminated{}",
+                    "{s:0.15} {}",
+                    "{C:purple}[Active Ability (In Round)]",
                     "{C:attention}(#5#/4){} ...",
                     "{C:attention}(#6#/6){} ...",
                 }
@@ -2061,6 +2127,7 @@ return {
             dis_j_lobc_skin_prophecy_1 = {
                 name = "T-09-90",
                 text = {
+                    "{C:purple}[Active Ability (In Shop)]",
                     "{C:attention}(#1#/2){} ...",
                     "{C:attention}(#2#/4){} ...",
                 }
@@ -3158,6 +3225,53 @@ return {
                     "Repeat effect for every {C:attention}10 {C:o_violet}Queequeg's Ego"
                 }
             },
+        },
+        MovementLobc = {
+            mvm_lobc_first = {
+                name = "The First Movement",
+                text = {
+                    "When drawn, {C:red}destroys{} a random playing card,",
+                    "then permanently gives all playing cards",
+                    "{C:chips}+#1#{} chips",
+                    "{S:1.1,C:red,E:2}self-destructs{}"
+                }
+            },
+            mvm_lobc_second = {
+                name = "The Second Movement",
+                text = {
+                    "When drawn, permanently {C:red}debuffs{} two playing cards,",
+                    "then permanently gives all playing cards",
+                    "{C:chips}+#1#{} chips and {C:mult}+#2#{} Mult",
+                    "{S:1.1,C:red,E:2}self-destructs{}"
+                }
+            },
+            mvm_lobc_third = {
+                name = "The Third Movement",
+                text = {
+                    "When drawn, randomizes the rank and suit of three",
+                    "playing cards, then permanently gives all playing cards",
+                    "{C:chips}+#1#{} chips, {C:mult}+#2#{} Mult and {X:mult,C:white} X#3# {} Mult",
+                    "{S:1.1,C:red,E:2}self-destructs{}"
+                }
+            },
+            mvm_lobc_fourth = {
+                name = "The Fourth Movement",
+                text = {
+                    "When drawn, removes the rank and suit of four",
+                    "playing cards, then permanently gives all playing cards",
+                    "{C:chips}+#1#{} chips, {C:mult}+#2#{} Mult, {X:mult,C:white} X#3# {} Mult,",
+                    "and they give {C:money}$#4#{} when played",
+                    "{S:1.1,C:red,E:2}self-destructs{}"
+                }
+            },
+            mvm_lobc_finale = {
+                name = "Finale",
+                text = {
+                    "When drawn, removes all permanent bonuses",
+                    "given by {C:attention}Movements",
+                    "{S:1.1,C:red,E:2}self-destructs{}"
+                }
+            }
         }
     },
     misc = {
@@ -3481,6 +3595,13 @@ return {
             ---- The Price of Silence ----
             k_lobc_price_of_silence_1 = "When time stops, silence falls.",
             k_lobc_price_of_silence_2 = "In a way, they are one and the same.",
+
+            ---- The Silent Orchestra ----
+            k_lobc_silent_orchestra_1 = "Movement 1",
+            k_lobc_silent_orchestra_2 = "Movement 2",
+            k_lobc_silent_orchestra_3 = "Movement 3",
+            k_lobc_silent_orchestra_4 = "Movement 4",
+            k_lobc_silent_orchestra_5 = "Finale",
 
             ---- Malkuth ----
             k_lobc_malkuth_0_1 = "This is what you call a truly uncontrollable situation, manager.",
