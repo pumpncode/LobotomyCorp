@@ -5,7 +5,8 @@ local skill = {
 }
 
 skill.loc_vars = function(self, info_queue, skill)
-    return {vars = {G.GAME.blind.ego*2}}
+    -- return {vars = {G.GAME.blind.ego*2}}
+    return {vars = {1*2}}
 end
 
 skill.calculate = function(self, skill, context)

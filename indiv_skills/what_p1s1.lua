@@ -10,7 +10,8 @@ skill.set_ability = function(self, skill, initial, delay_sprites)
 end
 
 skill.loc_vars = function(self, info_queue, skill)
-    return {vars = {50 + G.GAME.blind.b_sp}}
+    -- return {vars = {50 + G.GAME.blind.b_sp}}
+    return {vars = {50 + 1}}
 end
 
 skill.calculate = function(self, skill, context)

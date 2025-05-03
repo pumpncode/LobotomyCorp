@@ -8,11 +8,11 @@ skill.set_ability = function(self, skill, initial, delay_sprites)
     skill.ability.rank = "Ace"
     skill.ability.id = 14
     local valid_cards = {}
-    for k, v in ipairs(G.hand.cards) do
-        if not SMODS.has_no_rank(v) and not v.ability.eternal then
-            valid_cards[#valid_cards+1] = v
-        end
-    end
+    -- for k, v in ipairs(G.hand.cards) do
+    --     if not SMODS.has_no_rank(v) and not v.ability.eternal then
+    --         valid_cards[#valid_cards+1] = v
+    --     end
+    -- end
     if valid_cards[1] then 
         local _card = pseudorandom_element(valid_cards, pseudoseed('what_s1'..G.GAME.round_resets.ante))
         skill.ability.rank = _card.base.value

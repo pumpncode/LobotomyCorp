@@ -5,7 +5,8 @@ local skill = {
 }
 
 skill.loc_vars = function(self, info_queue, skill)
-    return {vars = {math.min(math.max((G.GAME.blind.b_sp - G.GAME.blind.p_sp)*2, 0), 100)}}
+    -- return {vars = {math.min(math.max((G.GAME.blind.b_sp - G.GAME.blind.p_sp)*2, 0), 100)}}
+    return {vars = {math.min(math.max((1 - 1)*2, 0), 100)}}
 end
 
 skill.calculate = function(self, skill, context)

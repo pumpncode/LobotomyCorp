@@ -85,13 +85,13 @@ SMODS.Enhancement{
     in_pool = function() return false end
 }
 
-local card_set_abilityref = Card.set_ability
-function Card.set_ability(self, center, initial, delay_sprites)
-    if self.config and self.config.center and self.config.center.key == "m_lobc_worker_bee" then
-        return
-    end
-    return card_set_abilityref(self, center, initial, delay_sprites)
-end
+-- local card_set_abilityref = Card.set_ability
+-- function Card.set_ability(self, center, initial, delay_sprites)
+--     if self.config and self.config.center and self.config.center.key == "m_lobc_worker_bee" then
+--         return
+--     end
+--     return card_set_abilityref(self, center, initial, delay_sprites)
+-- end
 
 return joker
 
