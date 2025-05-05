@@ -29,7 +29,7 @@ local joker_list = {
     "plague_doctor",
     "whitenight",
     "rudolta", -- Rudolta of the Sleigh
-    "queen_bee",
+    -- "queen_bee", -- disable for now (TMJ crash)
     "forsaken_murderer",
     "wellcheers", -- Opened Can of WellCheers
     "child_galaxy", -- Child of the Galaxy
