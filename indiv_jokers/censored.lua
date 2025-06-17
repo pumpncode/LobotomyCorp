@@ -1,7 +1,7 @@
 local joker = {
     name = "CENSORED",
     config = {extra = {
-        mult = 40,
+        mult = 30,
         x_mult = 2,
         chips = 25,
     }}, rarity = 3, cost = 8,
@@ -11,7 +11,7 @@ local joker = {
     perishable_compat = true,
     abno = true,
     risk = "aleph",
-    discover_rounds = 8,
+    discover_rounds = {2, 5, 8},
 }
 
 joker.calculate = function(self, card, context)
@@ -30,7 +30,7 @@ joker.calculate = function(self, card, context)
         end
     end
 
-    if context.other_joker and card ~= context.other_joker and context.other_joker.ability.lobc_censored then
+    if context.other_joker and (context.other_joker.ability.lobc_censored or card == context.other_joker) then
         G.E_MANAGER:add_event(Event({
             func = function()
                 context.other_joker:juice_up(0.5, 0.5)
@@ -134,28 +134,8 @@ joker.remove_from_deck = function(self, card, from_debuff)
     end
 end
 
-joker.generate_ui = function(self, info_queue, card, desc_nodes, specific_vars, full_UI_table)
-    local vars = { 
-        card.ability.extra.mult, card.ability.extra.x_mult, card.ability.extra.chips, 
-        card:check_rounds(2), card:check_rounds(5), card:check_rounds(8),
-    }
-    local desc_key = self.key
-    if card:check_rounds(2) < 2 then
-        desc_key = 'dis_'..desc_key..'_1'
-    elseif card:check_rounds(5) < 5 then
-        desc_key = 'dis_'..desc_key..'_2'
-    elseif card:check_rounds(8) < 8 then
-        desc_key = 'dis_'..desc_key..'_3'
-    end
-
-    full_UI_table.name = localize{type = 'name', key = desc_key, set = self.set, name_nodes = {}, vars = specific_vars or {}}
-    if not self.discovered and card.area ~= G.jokers then
-        localize{type = 'descriptions', key = 'und_'..self.key, set = "Other", nodes = desc_nodes, vars = vars}
-    elseif specific_vars and specific_vars.debuffed then
-        localize{type = 'other', key = 'debuffed_default', nodes = desc_nodes}
-    else
-        localize{type = 'descriptions', key = desc_key, set = self.set, nodes = desc_nodes, vars = vars}
-    end
+joker.loc_vars = function(self, info_queue, card)
+    return {vars = {card.ability.extra.mult, card.ability.extra.x_mult, card.ability.extra.chips}}
 end
 
 -- CENSORED sprite-based effects
@@ -195,7 +175,7 @@ if JokerDisplay then
             local c_count = 0
 
             for k, v in pairs(G.hand.cards) do
-                if not v.highlighted and not v.debuff and v.ability.censored then
+                if not v.highlighted and not v.debuff and (v.ability.censored or v == card) then
                     h_count = h_count + 1
                 end
             end

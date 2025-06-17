@@ -7,54 +7,45 @@ local joker = {
     perishable_compat = true,
     abno = true,
     risk = "teth",
-    discover_rounds = 5,
+    discover_rounds = {2, 5},
 }
 
 joker.calculate = function(self, card, context)
     if context.discard and not context.blueprint and context.other_card and context.other_card == context.full_hand[1] then
-        card.ability.extra.cards = card.ability.extra.cards + card.ability.extra.card_gain
-        if card.ability.extra.cards >= 5 then
-            check_for_unlock({type = "lobc_red_eyes"})
+        if card.ability.extra.first then
+            card.ability.extra.first = false
+            card.ability.extra.cards = card.ability.extra.cards + card.ability.extra.card_gain
+            G.hand:change_size(card.ability.extra.card_gain)
+            card.ability.extra.counter = card.ability.extra.counter + 1
+            if card.ability.extra.counter >= 10 then
+                check_for_unlock({type = "lobc_red_eyes"})
+            end
+            return {remove = true}
         end
-        card.ability.extra.counter = card.ability.extra.counter + 1
-        if card.ability.extra.counter >= 20 then
-            check_for_unlock({type = "lobc_red_eyes_open"})
-        end
-        return {remove = true}
     end
 
     if context.end_of_round and not context.blueprint and context.main_eval then
-        card.ability.extra.cards = 0
-    end
-end
-
-local draw_from_deck_to_handref = G.FUNCS.draw_from_deck_to_hand
-function G.FUNCS.draw_from_deck_to_hand(self, e)
-	draw_from_deck_to_handref(self, e)
-	for _, v in ipairs(SMODS.find_card("j_lobc_spider_bud")) do
-        for i = 1, v.ability.extra.cards do
-            draw_card(G.deck, G.hand, 100, 'up', true)
+        if G.GAME.blind.boss then 
+            G.hand:change_size(-card.ability.extra.cards)
+            card.ability.extra.cards = 0 
+            return {
+                message = localize('k_reset')
+            }
         end
+        card.ability.extra.first = true
     end
 end
 
-joker.generate_ui = function(self, info_queue, card, desc_nodes, specific_vars, full_UI_table)
-    local vars = { card.ability.extra.cards, card.ability.extra.card_gain, card:check_rounds(2), card:check_rounds(5) }
-    local desc_key = self.key
-    if card:check_rounds(2) < 2 then
-        desc_key = 'dis_'..desc_key..'_1'
-    elseif card:check_rounds(5) < 5 then
-        desc_key = 'dis_'..desc_key..'_2'
-    end
+joker.add_to_deck = function(self, card, from_blind)
+    G.hand:change_size(card.ability.extra.cards)
+end
 
-    full_UI_table.name = localize{type = 'name', key = desc_key, set = self.set, name_nodes = {}, vars = specific_vars or {}}
-    if not self.discovered and card.area ~= G.jokers then
-        localize{type = 'descriptions', key = 'und_'..self.key, set = "Other", nodes = desc_nodes, vars = vars}
-    elseif specific_vars and specific_vars.debuffed then
-        localize{type = 'other', key = 'debuffed_default', nodes = desc_nodes}
-    else
-        localize{type = 'descriptions', key = desc_key, set = self.set, nodes = desc_nodes, vars = vars}
-    end
+joker.remove_from_deck = function(self, card, from_blind)
+    G.hand:change_size(-card.ability.extra.cards)
+end
+
+joker.loc_vars = function(self, info_queue, card)
+    return {vars = {card.ability.extra.cards, card.ability.extra.card_gain}}
 end
 
 return joker

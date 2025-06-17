@@ -7,28 +7,57 @@ local joker = {
     perishable_compat = true,
     abno = true,
     risk = "zayin",
-    discover_rounds = 4,
+    discover_rounds = {2, 4},
 }
 
 joker.calculate = function(self, card, context)
+    if context.starting_shop then
+        G.GAME.lobc_fairy_lock_reroll = nil
+        local shop_items = {}
+        for _, area in pairs(G.I.CARDAREA) do
+            if area.config.type == 'shop' then
+                for _, item in pairs(area.cards) do
+                    if item.ability and item.ability.set ~= "Voucher" and item.cost > 1 then
+                        shop_items[#shop_items+1] = item
+                    end
+                end
+            end
+        end
+
+        if #shop_items > 0 then
+            local selected_card = pseudorandom_element(shop_items, pseudoseed("fairy_festival"))
+            selected_card.ability.lobc_fairy_festival = true
+            selected_card.children.lobc_fairy_particles = Particles(0, 0, 0,0, {
+                timer = 0.05,
+                scale = 0.25,
+                speed = 0.75,
+                lifespan = 1.5,
+                attach = selected_card,
+                colours = {G.C.GREEN, darken(G.C.GREEN, 0.2), darken(G.C.GREEN, 0.4)},
+                fill = true
+            })
+            selected_card:set_cost()
+        end
+    end
 end
 
-joker.generate_ui = function(self, info_queue, card, desc_nodes, specific_vars, full_UI_table)
-    local vars = { 0, card:check_rounds(2), card:check_rounds(4)}
-    local desc_key = self.key
-    if card:check_rounds(2) < 2 then
-        desc_key = 'dis_'..desc_key..'_1'
-    elseif card:check_rounds(4) < 4 then
-        desc_key = 'dis_'..desc_key..'_2'
-    end
-
-    full_UI_table.name = localize{type = 'name', key = desc_key, set = self.set, name_nodes = {}, vars = specific_vars or {}}
-    if not self.discovered and card.area ~= G.jokers then
-        localize{type = 'descriptions', key = 'und_'..self.key, set = "Other", nodes = desc_nodes, vars = vars}
-    elseif specific_vars and specific_vars.debuffed then
-        localize{type = 'other', key = 'debuffed_default', nodes = desc_nodes}
-    else
-        localize{type = 'descriptions', key = desc_key, set = self.set, nodes = desc_nodes, vars = vars}
+joker.load = function(self, card)
+    for _, area in pairs(G.I.CARDAREA) do
+        if area.config.type == 'shop' then
+            for _, item in pairs(area.cards) do
+                if item.ability.lobc_fairy_festival then
+                    item.children.lobc_fairy_particles = Particles(0, 0, 0,0, {
+                        timer = 0.05,
+                        scale = 0.25,
+                        speed = 0.75,
+                        lifespan = 1.5,
+                        attach = item,
+                        colours = {G.C.GREEN, darken(G.C.GREEN, 0.2), darken(G.C.GREEN, 0.4)},
+                        fill = true
+                    })
+                end
+            end
+        end
     end
 end
 

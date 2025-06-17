@@ -30,8 +30,8 @@ local joker_list = {
     "whitenight",
     "rudolta", -- Rudolta of the Sleigh
     -- "queen_bee", -- disable for now (TMJ crash)
-    "forsaken_murderer",
     "wellcheers", -- Opened Can of WellCheers
+    "forsaken_murderer",
     "child_galaxy", -- Child of the Galaxy
     "punishing_bird",
     "little_red", -- Little Red Riding Hooded Mercenary
@@ -39,7 +39,7 @@ local joker_list = {
     "fragment_universe", -- Fragment of the Universe
     "judgement_bird",
     "apocalypse_bird",
-    "price_of_silence",
+    --"price_of_silence",
     "laetitia",
     "fotdb", -- Funeral of the Dead Butterflies
     "mosb", -- The Mountain of Smiling Bodies
@@ -60,6 +60,8 @@ local joker_list = {
     "youre_bald",
     --- Fanmade / Mod Crossover Abnos
     "jolliest_jester",
+    "sign_of_roses",
+    "electric_sheep"
 }
 local blind_list = {
     -- Abnormalities
@@ -150,6 +152,7 @@ local sound_list = {
     wolf_out = "Wolf_EatOut",
     wolf_scratch = "Wolf_Scratch",
     queen_bee = "QueenBee_Funga_01",
+    electric_sheep = "sheep_3_1-1",
 
     evade = "what/evade",
     coin_fail = "what/coin_fail",
@@ -240,6 +243,8 @@ function loc_colour(_c, _default)
 end
 
 -- Load all jokers
+SMODS.Joker.discover_override = nil
+SMODS.Joker.discover_rounds = nil
 for _, v in ipairs(joker_list) do
     local joker = SMODS.load_file("indiv_jokers/" .. v .. ".lua")()
 
@@ -257,7 +262,14 @@ for _, v in ipairs(joker_list) do
     end
     if config.enable_crossovers then
         joker.dependencies = nil
+        joker.or_dependencies = nil
     end
+
+    local can = config.enable_crossovers
+    for _, v in ipairs(joker.or_dependencies or {}) do
+        if next(SMODS.find_mod(v)) then can = true; break end
+    end
+    if not can then joker.dependencies = {"THIS_JOKER_WILL_NOT_LOAD_HOPEFULLY"} end
 
     local joker_obj = SMODS.Joker(joker)
 
@@ -267,11 +279,78 @@ for _, v in ipairs(joker_list) do
         end
     end
 
+    -- Custom UI for Observation Levels
+    joker_obj.generate_ui = function(self, info_queue, card, desc_nodes, specific_vars, full_UI_table)
+        if not card then
+            card = self:create_fake_card()
+        end
+        local res = {}
+        if self.loc_vars and type(self.loc_vars) == 'function' then
+            res = self:loc_vars(info_queue, card) or {}
+        end
+        res.vars = res.vars or {}
+        local name = false
+        
+        if specific_vars and specific_vars.debuffed then
+            if self.key == "j_lobc_plague_doctor" then
+                localize{type = 'other', key = 'lobc_plague_doctor_debuffed', nodes = desc_nodes}
+            else
+                localize{type = 'other', key = 'debuffed_default', nodes = desc_nodes}
+            end
+        else
+            localize{type = 'descriptions', key = res.key or self.key, set = self.set, nodes = desc_nodes, vars = res.vars, AUT = full_UI_table}
+        end
+
+        -- Fill undiscovered description
+        if not self.discovered and not (card.area == G.jokers or card.area == G.consumeables) then
+            localize{type = 'descriptions', key = 'und_'..self.key, set = "Other", nodes = desc_nodes, vars = res.vars, AUT = full_UI_table}
+        end
+
+        -- For Undiscovered Abnormalities
+        for k, v in ipairs(self.discover_rounds) do
+            local override
+            if self.discover_override then
+                if type(self.discover_override) == "table" then
+                    override = self.discover_override[k]
+                elseif type(self.discover_override) == "function" then
+                    override = self:discover_override(k, card)
+                end
+            end
+            if card:check_rounds() < v then
+                if card.area == G.jokers or card.area == G.consumeables then
+                    -- First level is in desc_nodes
+                    if k == 1 then
+                        full_UI_table.main = {}
+                        localize{type = 'descriptions', key = (override or "lobc_obs_"..k), set = "Other", nodes = full_UI_table.main, vars = {card:check_rounds(), v}}
+                        full_UI_table.main.main_box_flag = true
+                    else
+                    -- The rest are in AUT.multi_box
+                        full_UI_table.multi_box[k-1] = {}
+                        localize{type = 'descriptions', key = (override or "lobc_obs_"..k), set = "Other", nodes = full_UI_table.multi_box[k-1], vars = {card:check_rounds(), v}}
+                    end
+                end
+            end
+            -- If the Abno has a custom name for early Observation Levels
+            if not self.discovered and card:check_rounds() >= v and G.localization.descriptions.Joker[self.key.."_name_"..k] then
+                full_UI_table.name = localize{type = 'name', key = self.key.."_name_"..k, set = self.set, name_nodes = {}, vars = specific_vars or {}}
+                name = true
+            end
+        end
+        -- No custom names available, fill name with Classification Code from undiscovered description
+        if not self.discovered then
+            if not name then
+                full_UI_table.name = localize{type = 'name', key = "und_"..self.key, set = "Other", name_nodes = {}, vars = specific_vars or {}}
+            end
+        else
+            full_UI_table.name = localize{type = 'name', key = self.key, set = self.set, name_nodes = {}, vars = specific_vars or {}}
+        end
+    end
+
     if not joker.set_sprites then
         joker_obj.set_sprites = function(self, card, front)
             card.children.center.atlas = G.ASSET_ATLAS["lobc_LobotomyCorp_Jokers"]
             local count = lobc_get_usage_count(card.config.center_key)
-            if count < card.config.center.discover_rounds and not config.show_art_undiscovered then
+            if count < card.config.center.discover_rounds[#card.config.center.discover_rounds] and not config.show_art_undiscovered then
                 card.children.center.atlas = G.ASSET_ATLAS["lobc_LobotomyCorp_Undiscovered"]
             end
             card.children.center:set_sprite_pos(card.config.center.pos)
@@ -557,9 +636,10 @@ function lobc_get_usage_count(key)
 end
 
 -- Check rounds until observation unlock
-function Card:check_rounds(comp)
-    local val = lobc_get_usage_count(self.config.center_key)
-    return math.min(val, comp)
+function Card:check_rounds()
+    --local val = lobc_get_usage_count(self.config.center_key)
+    --return math.min(val, comp)
+    return lobc_get_usage_count(self.config.center_key)
 end
 
 -- Make Abnos breach
@@ -613,8 +693,8 @@ end
 -- Overwrite blind spawning for Abnormality Boss Blinds if requirements are met
 local get_new_bossref = get_new_boss
 function get_new_boss()
-    if (string.lower(G.PROFILES[G.SETTINGS.profile].name or '') == "ishmael" or (os.date("%d%m") == "0104" and not config.seen_what)) and G.GAME.round_resets.ante == 9 then return "bl_lobc_what_blind" end
-    if G.GAME.modifiers.lobc_gebura and G.GAME.round_resets.ante >= 9 then return "bl_lobc_red_mist" end
+    if (string.lower(G.PROFILES[G.SETTINGS.profile].name or '') == "ishmael" or (os.date("%d%m") == "0104" and not config.seen_what)) and G.GAME.round_resets.ante == G.GAME.win_ante then return "bl_lobc_what_blind" end
+    if G.GAME.modifiers.lobc_gebura and G.GAME.round_resets.ante >= G.GAME.win_ante then return "bl_lobc_red_mist" end
     if G.GAME.modifiers.lobc_all_whitenight or 
     (G.GAME.pool_flags["plague_doctor_breach"] and not G.GAME.pool_flags["whitenight_defeated"]) then return "bl_lobc_whitenight" end
     if G.GAME.modifiers.lobc_placeholder or 
@@ -639,7 +719,8 @@ local reset_blindsref = reset_blinds
 function reset_blinds()
     reset_blindsref()
     -- Hide Small and Big Blind (Gebura)
-    if (G.GAME.modifiers.lobc_gebura and G.GAME.round_resets.ante > 8) or ((string.lower(G.PROFILES[G.SETTINGS.profile].name or '') == "ishmael" or (os.date("%d%m") == "0104" and not config.seen_what)) and G.GAME.round_resets.ante == 9) then
+    if (G.GAME.modifiers.lobc_gebura and G.GAME.round_resets.ante > G.GAME.win_ante) or 
+       ((string.lower(G.PROFILES[G.SETTINGS.profile].name or '') == "ishmael" or (os.date("%d%m") == "0104" and not config.seen_what)) and G.GAME.round_resets.ante == G.GAME.win_ante) then
         G.GAME.round_resets.blind_states.Small = 'Hide'
         G.GAME.round_resets.blind_states.Big = 'Hide'
         ease_background_colour_blind()
@@ -1016,36 +1097,17 @@ for k, v in pairs(skill_list) do
     local skill_obj = SMODS.SkillLobc(skill)
 end
 
--- Add skills to blind description
-local HUD_blind_debuffref = G.FUNCS.HUD_blind_debuff
-function G.FUNCS.HUD_blind_debuff(e)
-    HUD_blind_debuffref(e)
-    if G.GAME.blind.skill_deck then
-        if not G.skill_deck then
-            G.skill_deck = CardArea(0, 0, 4.2, 1.2, {card_limit = 5, type = 'title_2'})
-            local deck = {n = G.UIT.R, config = {align = "cm", maxh = 1.2, maxw = 4.2}, nodes = {}}
-            for _, v in ipairs(G.GAME.blind.skill_deck) do
-                local _card = SMODS.create_card({
-                    set = "SkillLobc",
-                    key = "sk_lobc_"..v,
-                    area = G.skill_deck
-                })
-                G.skill_deck:emplace(_card)
-                _card.states.click.can = false
-                _card.states.drag.can = false
-                G.E_MANAGER:add_event(Event({trigger = "after", delay = 0.2, func = function() 
-                    _card:juice_up()
-                return true end }))
-            end
-            for _, v in ipairs(G.skill_deck.cards) do
-                v.states.click.can = false
-                v.states.drag.can = false
-            end
-            table.insert(deck.nodes, {n=G.UIT.O, config = {object = G.skill_deck}})
-            e.UIBox:set_parent_child(deck, e)
-            e.UIBox:recalculate()
-        end
+-- Skill infobox shows to the right
+local align_h_popupref = Card.align_h_popup
+function Card.align_h_popup(self)
+    local ret = align_h_popupref(self)
+    local focused_ui = self.children.focused_ui and true or false
+    if self.ability.set == "SkillLobc" then
+        ret.offset.x = 0
+        ret.offset.y = 0
+        ret.type = "cr"
     end
+    return ret
 end
 
 --=============== JOKERS ===============--
@@ -1151,51 +1213,6 @@ local play_cards_from_highlightedref = G.FUNCS.play_cards_from_highlighted
 function G.FUNCS.play_cards_from_highlighted(e)
     play_cards_from_highlightedref(e)
     G.GAME.lobc_prepped = true
-end
-
--- Card popup UI effects
-local card_h_popupref = G.UIDEF.card_h_popup
-function lobc_card_h_popup(card)
-    local t = card_h_popupref(card)
-    -- Yesod remove UI
-    if G.GAME and G.GAME.modifiers.lobc_yesod and G.GAME.round_resets.ante > 3 then
-        return {n=G.UIT.ROOT, config = {align = 'cm', colour = G.C.CLEAR}, nodes={}}
-    end
-    -- CENSORED
-    if (next(SMODS.find_card("j_lobc_censored", true)) and (not card.config or not card.config.center or card.config.center.key ~= "j_lobc_censored"))
-       or (card.ability and card.ability.lobc_censored) then
-        local name_nodes = localize{type = 'name', key = "j_lobc_censored", set = "Joker", name_nodes = {}, vars = {}}
-        name_nodes[1].nodes[1].config.object.colours = {G.C.RED}
-        return {n=G.UIT.ROOT, config = {align = 'cm', colour = G.C.CLEAR}, nodes={
-            {n=G.UIT.C, config={align = "cm", object = Moveable(), ref_table = nil}, nodes = {
-                {n=G.UIT.R, config={padding = 0.05, r = 0.12, colour = G.C.BLACK, emboss = 0.07}, nodes={
-                    {n=G.UIT.R, config={align = "cm", padding = 0.07, r = 0.1, colour = G.C.RED}, nodes={
-                        {n=G.UIT.R, config={align = "cm", padding = 0.05, r = 0.1, colour = G.C.BLACK, emboss = 0.05}, nodes = name_nodes},
-                    }}
-                }}
-            }},
-        }}
-    end
-    -- Apocalypse Bird/Long Arms
-    if G.GAME.lobc_long_arms and card.playing_card and G.GAME.lobc_long_arms[card:get_id()] then
-        table.insert(
-            t.nodes[1].nodes[1].nodes[1].nodes[2].nodes[1].nodes,
-            {n=G.UIT.R, config={align = "cm"}, nodes={
-                {n=G.UIT.T, config={
-                    text = localize("k_lobc_rank_sin"),
-                    scale = 0.32*G.LANG.font.DESCSCALE*(G.F_MOBILE_UI and 1.5 or 1),
-                    colour = G.C.UI.TEXT_DARK,
-                }},
-                {n=G.UIT.T, config={
-                    text = G.GAME.lobc_long_arms[card:get_id()], 
-                    scale = 0.32*G.LANG.font.DESCSCALE*(G.F_MOBILE_UI and 1.5 or 1),
-                    colour = G.C.RED,
-                }}
-            }}
-        )
-
-    end
-    return t
 end
 
 -- Remove the topleft message when CENSORED/Yesod is active
@@ -1334,7 +1351,7 @@ function Game.start_run(self, args)
         if G.GAME.modifiers.lobc_fast_ante_2 then G.GAME.modifiers.scaling = 3 end
         if G.GAME.modifiers.lobc_netzach then G.GAME.lobc_no_hands_reset = true end
         if G.GAME.modifiers.lobc_hod then G.GAME.lobc_hod_modifier = 0.85 end
-        if G.GAME.modifiers.lobc_gebura or (string.lower(G.PROFILES[G.SETTINGS.profile].name or '') == "ishmael" or (os.date("%d%m") == "0104" and not config.seen_what)) then G.GAME.win_ante = 9 end
+        if G.GAME.modifiers.lobc_gebura or (string.lower(G.PROFILES[G.SETTINGS.profile].name or '') == "ishmael" or (os.date("%d%m") == "0104" and not config.seen_what)) then G.GAME.win_ante = G.GAME.win_ante + 1 end
         if G.GAME.modifiers.lobc_end_ante then G.GAME.win_ante = G.GAME.modifiers.lobc_end_ante end
     end
 
@@ -1602,23 +1619,6 @@ function G.FUNCS.get_poker_hand_info(_cards)
     return get_poker_hand_inforef(_cards)
 end
 
--- Make infoboxes show under the card in Collection view middle row
-local align_h_popupref = Card.align_h_popup
-function Card.align_h_popup(self)
-    local ret = align_h_popupref(self)
-    local focused_ui = self.children.focused_ui and true or false
-    if (self.config.center.abno and self.T.y < G.CARD_H*1.2) then
-        ret.offset.y = focused_ui and 0.12 or 0.1
-        ret.type = "bm"
-    end
-    if self.ability.set == "SkillLobc" then
-        ret.offset.x = 0
-        ret.offset.y = 0
-        ret.type = "cr"
-    end
-    return ret
-end
-
 -- Debuffing effects
 local should_debuff_ability = {
     "scorched_girl_debuff",
@@ -1659,9 +1659,9 @@ function Card.set_ability(self, center, initial, delay_sprites)
         end
     end
     
-    if self.ability and self.playing_card and self.ability.set == "Enhanced" then
+    --[[if self.ability and self.playing_card and self.ability.set == "Enhanced" then
         self:lobc_check_amplified()
-    end
+    end]]--
 end
 
 -- Blind:alert_debuff for ordeals
@@ -1986,6 +1986,155 @@ function first_time_passive()
     end
 end
 
+-- Late patches
+local boot_timerref = boot_timer
+function boot_timer(_label, _next, progress)
+    if _label == 'prep stage' then
+        -- Global variables
+        G.lobc_global_modifiers = {
+            "laetitia_gift",
+            "price_of_silence_amplified",
+            "plague_doctor_baptism",
+            "child_galaxy_pebble",
+        }
+        G.lobc_global_meltdowns = {
+            "malkuth",
+            "yesod",
+            "hod",
+            "netzach",
+            "tiphereth",
+            "gebura",
+            "chesed",
+            "binah",
+            "hokma",
+            "day_47",
+            "day_48",
+            "day_49"
+        }
+        local modifiers_atlas = G.ASSET_ATLAS["lobc_LobotomyCorp_modifiers"]
+        G.lobc_shared_modifiers = {
+            laetitia_gift = Sprite(0, 0, G.CARD_W, G.CARD_H, modifiers_atlas, {x = 0, y = 0}),
+            price_of_silence_amplified = Sprite(0, 0, G.CARD_W, G.CARD_H, modifiers_atlas, {x = 1, y = 0}),
+            plague_doctor_baptism = Sprite(0, 0, G.CARD_W, G.CARD_H, modifiers_atlas, {x = 2, y = 0}),
+            child_galaxy_pebble = Sprite(0, 0, G.CARD_W, G.CARD_H, modifiers_atlas, {x = 3, y = 0}),
+        }
+        
+        -- Card popup UI effects
+        local card_h_popupref = G.UIDEF.card_h_popup
+        function G.UIDEF.card_h_popup(card)
+            local t = card_h_popupref(card)
+            -- Yesod remove UI
+            if G.GAME and G.GAME.modifiers.lobc_yesod and G.GAME.round_resets.ante > 3 then
+                return {n=G.UIT.ROOT, config = {align = 'cm', colour = G.C.CLEAR}, nodes={}}
+            end
+            -- CENSORED
+            if (next(SMODS.find_card("j_lobc_censored", true)) and (not card.config or not card.config.center or card.config.center.key ~= "j_lobc_censored"))
+            or (card.ability and card.ability.lobc_censored) then
+                local name_nodes = localize{type = 'name', key = "j_lobc_censored", set = "Joker", name_nodes = {}, vars = {}}
+                name_nodes[1].nodes[1].config.object.colours = {G.C.RED}
+                return {n=G.UIT.ROOT, config = {align = 'cm', colour = G.C.CLEAR}, nodes={
+                    {n=G.UIT.C, config={align = "cm", object = Moveable(), ref_table = nil}, nodes = {
+                        {n=G.UIT.R, config={padding = 0.05, r = 0.12, colour = G.C.BLACK, emboss = 0.07}, nodes={
+                            {n=G.UIT.R, config={align = "cm", padding = 0.07, r = 0.1, colour = G.C.RED}, nodes={
+                                {n=G.UIT.R, config={align = "cm", padding = 0.05, r = 0.1, colour = G.C.BLACK, emboss = 0.05}, nodes = name_nodes},
+                            }}
+                        }}
+                    }},
+                }}
+            end
+            -- Apocalypse Bird/Long Arms
+            if G.GAME.lobc_long_arms and card.playing_card and G.GAME.lobc_long_arms[card:get_id()] then
+                table.insert(
+                    t.nodes[1].nodes[1].nodes[1].nodes[2].nodes[1].nodes,
+                    {n=G.UIT.R, config={align = "cm"}, nodes={
+                        {n=G.UIT.T, config={
+                            text = localize("k_lobc_rank_sin"),
+                            scale = 0.32*G.LANG.font.DESCSCALE*(G.F_MOBILE_UI and 1.5 or 1),
+                            colour = G.C.UI.TEXT_DARK,
+                        }},
+                        {n=G.UIT.T, config={
+                            text = G.GAME.lobc_long_arms[card:get_id()], 
+                            scale = 0.32*G.LANG.font.DESCSCALE*(G.F_MOBILE_UI and 1.5 or 1),
+                            colour = G.C.RED,
+                        }}
+                    }}
+                )
+
+            end
+            return t
+        end
+
+        -- Add skills to blind description
+        local HUD_blind_debuffref = G.FUNCS.HUD_blind_debuff
+        function G.FUNCS.HUD_blind_debuff(e)
+            HUD_blind_debuffref(e)
+            if G.GAME.blind.skill_deck then
+                if not G.skill_deck then
+                    G.skill_deck = CardArea(0, 0, 4.2, 1.2, {card_limit = 5, type = 'title_2'})
+                    local deck = {n = G.UIT.R, config = {align = "cm", maxh = 1.2, maxw = 4.2}, nodes = {}}
+                    for _, v in ipairs(G.GAME.blind.skill_deck) do
+                        local _card = SMODS.create_card({
+                            set = "SkillLobc",
+                            key = "sk_lobc_"..v,
+                            area = G.skill_deck
+                        })
+                        G.skill_deck:emplace(_card)
+                        _card.states.click.can = false
+                        _card.states.drag.can = false
+                        G.E_MANAGER:add_event(Event({trigger = "after", delay = 0.2, func = function() 
+                            _card:juice_up()
+                        return true end }))
+                    end
+                    for _, v in ipairs(G.skill_deck.cards) do
+                        v.states.click.can = false
+                        v.states.drag.can = false
+                    end
+                    table.insert(deck.nodes, {n=G.UIT.O, config = {object = G.skill_deck}})
+                    e.UIBox:set_parent_child(deck, e)
+                    e.UIBox:recalculate()
+                end
+            end
+        end
+
+        -- Add different Enhancements to Metallic Cards
+        local metallic = {
+            {"m_gold"},
+            {"m_steel"},
+            {"m_bunc_copper", "Bunco"},
+            {"m_grim_iron", "Grim"},
+            {"m_grim_lead", "Grim"},
+            {"m_grim_platinum", "Grim"},
+            {"m_grim_radium", "Grim"},
+            {"m_grim_silver", "Grim"},
+            {"m_kino_sci_fi", "Kino"},
+            {"m_mills_cinna", "MillsCookbook"}, {"m_mills_cinnabar", "MillsCookbook"}, -- vro why do you have two of the same enhancements
+            {"m_mills_cob", "MillsCookbook"}, {"m_mills_cobalt", "MillsCookbook"},
+            {"m_mills_elec", "MillsCookbook"}, {"m_mills_electrum", "MillsCookbook"},
+            {"m_mills_ir", "MillsCookbook"}, {"m_mills_iron", "MillsCookbook"},
+            {"m_mills_titanium", "MillsCookbook"},
+            {"m_mf_brass", "MoreFluff"},
+            {"m_ortalab_rusty", "Ortalab"},
+            {"m_jen_potassium", "POLTERWORX"},
+            {"m_reverse_copper", "ReverseTarot+"},
+            {"m_reverse_iridium", "ReverseTarot+"},
+            {"m_crv_coatedcopper", "RevosVault"},
+            {"m_toga_bronze", "TOGAPack"},
+            {"m_toga_copper", "TOGAPack"},
+            {"m_toga_electrum", "TOGAPack"},
+            {"m_toga_iron", "TOGAPack"},
+            {"m_toga_osmium", "TOGAPack"},
+            {"m_toga_silver", "TOGAPack"},
+            {"m_toga_tin", "TOGAPack"},
+        }
+        for _, v in ipairs(metallic) do
+            if G.localization.descriptions.Enhanced[v[1]] then
+                table.insert(G.localization.descriptions.Other.lobc_metallic.text, "{C:attention}"..G.localization.descriptions.Enhanced[v[1]].name..(v[2] and "{} ("..v[2]..")" or ""))
+            end
+        end
+    end
+    return boot_timerref(_label, _next, progress)
+end
+
 --=============== OBSERVATION ===============--
 
 -- Card updates
@@ -1993,13 +2142,14 @@ local card_updateref = Card.update
 function Card.update(self, dt)
     -- Check if enough rounds have passed, should be saving
     if self.config.center.abno then
+        local rounds = self.config.center.discover_rounds[#self.config.center.discover_rounds]
         local count = lobc_get_usage_count(self.config.center_key)
-        if config.discover_all and count < self.config.center.discover_rounds then
-            G.PROFILES[G.SETTINGS.profile].joker_usage[self.config.center.key] = {count = self.config.center.discover_rounds or 0}
+        if config.discover_all and count < rounds then
+            G.PROFILES[G.SETTINGS.profile].joker_usage[self.config.center.key] = {count = rounds or 0}
             self.config.center.discovered = true
             self:set_sprites(self.config.center)
         end
-        self.config.center.discovered = (count >= self.config.center.discover_rounds)
+        self.config.center.discovered = (count >= rounds)
         self.config.center.alerted = self.config.center.discovered
     end
 
@@ -2012,7 +2162,7 @@ function set_joker_usage()
     set_joker_usageref()
     for k, v in pairs(G.jokers.cards) do
         if v.config.center_key and v.ability.set == 'Joker' and v.config.center.abno then
-            if lobc_get_usage_count(v.config.center_key) >= v.config.center.discover_rounds then
+            if lobc_get_usage_count(v.config.center_key) >= v.config.center.discover_rounds[#v.config.center.discover_rounds] then
                 if not v.config.center.discovered then
                     G.E_MANAGER:add_event(Event({trigger = 'after', delay = 0.4*G.SETTINGS.GAMESPEED, func = function()
                         play_sound('card1')
@@ -2029,6 +2179,27 @@ function set_joker_usage()
             end
         end
     end
+end
+
+-- Override undiscovered description
+local generate_card_uiref = generate_card_ui
+function generate_card_ui(_c, full_UI_table, specific_vars, card_type, badges, hide_desc, main_start, main_end, card)
+    local abno_hide_desc = (hide_desc and _c.set == "Joker" and _c.abno)
+    if card_type == "Undiscovered" and _c.set == "Joker" and _c.abno then
+        card_type = "Undiscovered Abnormality"
+        hide_desc = false
+    end
+    local t = generate_card_uiref(_c, full_UI_table, specific_vars, card_type, badges, hide_desc, main_start, main_end, card)
+    if abno_hide_desc and _c.set == "Joker" and _c.abno then
+        t.main = {}
+        if main_start then t.main[#t.main+1] = main_start end
+        localize{type = 'other', key = 'und_'.._c.key, set = _c.set, nodes = t.main}
+        if main_end then t.main[#t.main+1] = main_end end
+    end
+    if card_type == "Undiscovered Abnormality" then
+        t.card_type = "Undiscovered"
+    end
+    return t
 end
 
 --=============== BOOSTER PACK ===============--
@@ -2140,11 +2311,11 @@ end
 
 G.FUNCS.lobc_discover_all = function(e)
     for k, v in pairs(SMODS.Centers) do
-        if v.mod == current_mod then
+        if v.mod == current_mod and v.discover_rounds and type(v.discover_rounds) == "table" then
             if G.PROFILES[G.SETTINGS.profile].joker_usage[v.key] then
-                G.PROFILES[G.SETTINGS.profile].joker_usage[v.key].count = v.discover_rounds
+                G.PROFILES[G.SETTINGS.profile].joker_usage[v.key].count = v.discover_rounds[#v.discover_rounds]
             else
-                G.PROFILES[G.SETTINGS.profile].joker_usage[v.key] = {count = v.discover_rounds, order = v.order, wins = {}, losses = {}}
+                G.PROFILES[G.SETTINGS.profile].joker_usage[v.key] = {count = v.discover_rounds[#v.discover_rounds], order = v.order, wins = {}, losses = {}}
             end
             v.discovered = true
             v.alerted = true
@@ -2181,9 +2352,9 @@ SMODS.current_mod.config_tab = function()
             }},
         }},
         {n = G.UIT.R, config = {align = "tm", padding = 0.1}, nodes = {
-            {n=G.UIT.C, config = {align = "cm", padding = 0.1, r = 0.1, minw = 6, minh = 0.8, hover = true, shadow = true, colour = G.C.RED, one_press = true, button = 'lobc_discover_all'}, nodes={
+            --[[{n=G.UIT.C, config = {align = "cm", padding = 0.1, r = 0.1, minw = 6, minh = 0.8, hover = true, shadow = true, colour = G.C.RED, one_press = true, button = 'lobc_discover_all'}, nodes={
                 {n=G.UIT.T, config={text = localize('b_lobc_discover_all'),colour = G.C.UI.TEXT_LIGHT, scale = 0.45, shadow = true}}
-            }},
+            }},]]--
             {n=G.UIT.C, config = {align = "cm", padding = 0.1, r = 0.1, minw = 6, minh = 0.8, hover = true, shadow = true, colour = G.C.RED, one_press = true, button = 'lobc_reset_achievements'}, nodes={
                 {n=G.UIT.T, config={text = localize('b_lobc_reset_ach'),colour = G.C.UI.TEXT_LIGHT, scale = 0.45, shadow = true}}
             }},
