@@ -12,7 +12,7 @@ position = "before"
 payload = '''
 if score == 'defeated_by' and G.GAME.lobc_death_text then 
     local center = G.P_CENTERS["j_lobc_"..G.GAME.lobc_death_text]
-    local text = localize{type = 'name_text', key = center.discovered and center.key or "dis_"..center.key.."_1", set = "Joker"} 
+    local text = localize{type = 'name_text', key = center.discovered and center.key or "und_"..center.key, set = "Joker"} 
     local sprite = Sprite(0, 0, 1.4*(71/95), 1.4, G.ASSET_ATLAS["lobc_LobotomyCorp_"..((center.discovered or SMODS.Mods.LobotomyCorp.config.show_art_undiscovered) and "Jokers" or "Undiscovered")], center.pos)
     sprite:define_draw_steps({
         {shader = 'dissolve', shadow_height = 0.05},
@@ -31,3 +31,56 @@ if score == 'defeated_by' and G.GAME.lobc_death_text then
     }
 end'''
 match_indent = true
+
+# 1.76 MHz
+[[patches]]
+[patches.pattern]
+target = "functions/common_events.lua"
+pattern = "localize{type = 'other', key = 'card_chips', nodes = desc_nodes, vars = {specific_vars.nominal_chips}}"
+position = "before"
+payload = '''
+if next(SMODS.find_card("j_lobc_mhz")) then
+    localize{type = 'other', key = 'card_chips', nodes = desc_nodes, vars = {"???"}}
+else'''
+match_indent = true
+
+[[patches]]
+[patches.pattern]
+target = "functions/common_events.lua"
+pattern = "localize{type = 'other', key = 'card_chips', nodes = desc_nodes, vars = {specific_vars.nominal_chips}}"
+position = "after"
+payload = "end"
+match_indent = true
+
+# The Servant of Wrath
+[[patches]]
+[patches.pattern]
+target = "functions/state_events.lua"
+pattern = "ease_hands_played(-1)"
+position = "at"
+payload = """
+-- [Blind Rage] Does not cost hands
+if not (G.GAME.blind.config.blind.key == "bl_lobc_mg_wrath" and G.GAME.blind.discards_sub ~= G.GAME.blind.hands_sub) then
+    ease_hands_played(-1)
+end"""
+match_indent = true
+
+# Enchanted cards
+[[patches]]
+[patches.pattern]
+target = 'functions/state_events.lua'
+pattern = "hand_space = n"
+position = 'before'
+match_indent = true
+payload = '''
+for i = n+1, #G.deck.cards-1 do
+    local card = G.deck.cards[#G.deck.cards-i]
+    if card.edition and card.edition.card_limit and card.ability.big_bird_enchanted then
+        n = n + 1
+    end
+end
+for _, v in ipairs(G.discard.cards) do
+    if v.edition and v.edition.card_limit and v.ability.big_bird_enchanted then
+        n = n + 1
+    end
+end'''

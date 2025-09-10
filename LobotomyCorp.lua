@@ -4,8 +4,14 @@ local current_mod = SMODS.current_mod
 local mod_path = SMODS.current_mod.path
 local config = SMODS.current_mod.config
 lobc_seen_what = config.seen_what
-local folder = string.match(mod_path, "[Mm]ods.*")
+local folder = nil
+if love.system.getOS() == 'Android' then
+    folder = string.match(mod_path, ".*_[Mm]ods.*")
+else
+    folder = string.match(mod_path, "[Mm]ods.*")
+end
 SMODS.load_file("blindexpander.lua")()
+SMODS.load_file("lyrics.lua")()
 
 --=============== STEAMODDED OBJECTS ===============--
 
@@ -22,6 +28,7 @@ local joker_list = {
     "nameless_fetus",
     "wall_gazer", -- The Lady Facing the Wall
     --"nothing_there",
+    "mhz",
     --"silent_orchestra",
     "big_bird",
     "all_around_helper",
@@ -39,13 +46,16 @@ local joker_list = {
     "fragment_universe", -- Fragment of the Universe
     "judgement_bird",
     "apocalypse_bird",
-    --"price_of_silence",
+    "king_of_greed",
+    "price_of_silence",
     "laetitia",
     "fotdb", -- Funeral of the Dead Butterflies
     "mosb", -- The Mountain of Smiling Bodies
     "heart_of_aspiration",
     "giant_tree_sap",
+    "shelter",
     "fairy_festival",
+    "meat_lantern",
     "iron_maiden", -- We Can Change Anything
     "express_train", -- Express Train to Hell
     "scarecrow_searching", -- Scarecrow Searching for Wisdom
@@ -55,7 +65,7 @@ local joker_list = {
     "you_must_be_happy",
     "old_faith", -- Old Faith and Promise
     "void_dream",
-    "firebird", -- The Firebird
+    "firebird",
     "servant_of_wrath",
     "youre_bald",
     --- Fanmade / Mod Crossover Abnos
@@ -70,6 +80,8 @@ local blind_list = {
     "ab_beak",
     "ab_eyes",
     "ab_arms",
+    "mg_hatred",
+    "mg_wrath",
     -- Meltdowns
     "red_mist",
     --"an_arbiter",
@@ -127,6 +139,8 @@ local sound_list = {
     music_gebura_2 = "Insignia Decay",
     music_tpov = "Through Patches of Violet",
     music_compass = "what/compass",
+    music_second_warning_ruina = "Second Warning (Ruina)",
+    --music_funky = "HYPERHASTIGHETS UPPGRADERINGAR",
 
     meltdown_start = "Boss_StartButton",
     overload_alert = "OverloadAlert3",
@@ -153,6 +167,7 @@ local sound_list = {
     wolf_scratch = "Wolf_Scratch",
     queen_bee = "QueenBee_Funga_01",
     electric_sheep = "sheep_3_1-1",
+    meat_lantern = "Bunny_Start",
 
     evade = "what/evade",
     coin_fail = "what/coin_fail",
@@ -174,6 +189,13 @@ local sound_list = {
     what_p3s2 = "what/what_p3s2",
     what_p3s3 = "what/what_p3s3",
     what_death = "what/what_death",
+
+    hatred_entry = "Hatred/hatred_entry",
+    hatred_s1 = "Hatred/hatred_s1",
+    hatred_s2 = "Hatred/hatred_s2",
+    hatred_s3 = "Hatred/hatred_s3",
+    hatred_alt = "Hatred/hatred_alt",
+    hatred_switch = "Hatred/hatred_switch",
 
     gebura_slash = "Gebura_Phase2_Atk1",
     dice_roll = "Dice_Roll",
@@ -218,6 +240,8 @@ local badge_colors = {
     lobc_marked = HEX("C3181B"),
     lobc_devoured = HEX("174D7D"),
     lobc_prey_mark = HEX("1506A5"),
+    lobc_lantern = HEX("88CA42"),
+    lobc_villain = HEX("CB34B4"),
     lobc_zayin = HEX("1DF900"),
     lobc_teth = HEX("13A2FF"),
     lobc_he = HEX("FFF900"),
@@ -265,11 +289,13 @@ for _, v in ipairs(joker_list) do
         joker.or_dependencies = nil
     end
 
-    local can = config.enable_crossovers
-    for _, v in ipairs(joker.or_dependencies or {}) do
-        if next(SMODS.find_mod(v)) then can = true; break end
+    if joker.or_dependencies then
+        local can = lobc_deep_copy(config).enable_crossovers
+        for _, v in ipairs(joker.or_dependencies or {}) do
+            if next(SMODS.find_mod(v)) then can = true; break end
+        end
+        if not can then joker.dependencies = {"THIS_JOKER_WILL_NOT_LOAD_HOPEFULLY"} end
     end
-    if not can then joker.dependencies = {"THIS_JOKER_WILL_NOT_LOAD_HOPEFULLY"} end
 
     local joker_obj = SMODS.Joker(joker)
 
@@ -297,27 +323,26 @@ for _, v in ipairs(joker_list) do
             else
                 localize{type = 'other', key = 'debuffed_default', nodes = desc_nodes}
             end
+        -- Fill undiscovered description
+        elseif not self.discovered and not (card.area == G.jokers or card.area == G.consumeables) then
+            localize{type = 'descriptions', key = 'und_'..self.key, set = "Other", nodes = desc_nodes, vars = res.vars, AUT = full_UI_table}
         else
             localize{type = 'descriptions', key = res.key or self.key, set = self.set, nodes = desc_nodes, vars = res.vars, AUT = full_UI_table}
         end
 
-        -- Fill undiscovered description
-        if not self.discovered and not (card.area == G.jokers or card.area == G.consumeables) then
-            localize{type = 'descriptions', key = 'und_'..self.key, set = "Other", nodes = desc_nodes, vars = res.vars, AUT = full_UI_table}
-        end
-
         -- For Undiscovered Abnormalities
         for k, v in ipairs(self.discover_rounds) do
-            local override
+            local override, true_override
             if self.discover_override then
                 if type(self.discover_override) == "table" then
                     override = self.discover_override[k]
                 elseif type(self.discover_override) == "function" then
                     override = self:discover_override(k, card)
+                    if override then true_override = true end
                 end
             end
-            if card:check_rounds() < v then
-                if card.area == G.jokers or card.area == G.consumeables then
+            if (card:check_rounds() < v or true_override) and not card.debuff then
+                if card.area == G.jokers or card.area == G.consumeables or self.discovered then
                     -- First level is in desc_nodes
                     if k == 1 then
                         full_UI_table.main = {}
@@ -414,8 +439,11 @@ for k, v in pairs(sound_list) do
     for _, vv in ipairs(SMODS.load_file("sound_conditionals.lua")()) do
         if k == vv.key then
             sound.select_music_track = vv.select_music_track
+            sound.bpm = vv.bpm
+            sound.offset = vv.offset
+            sound.sync_events = vv.sync_events
             sound.sync = vv.sync
-            sound.pitch = 0.7
+            sound.pitch = vv.pitch or 0.7
         end
     end
 end
@@ -450,6 +478,7 @@ SMODS.load_file("achievements.lua")()
 
 --=============== DRAW STEPS ===============--
 
+-- "Sticker" modifiers
 SMODS.DrawStep({
     key = "modifiers",
     order = 45, -- Above stickers
@@ -463,6 +492,7 @@ SMODS.DrawStep({
         end
     end
 })
+-- "Mood" modifiers (Shy Look, Wellcheers, Express Train)
 SMODS.DrawStep({
     key = "mood",
     order = 50, -- Same order as The Soul/floating sprite
@@ -474,24 +504,27 @@ SMODS.DrawStep({
         end
     end
 })
+-- "Hover" modifiers
 SMODS.DrawStep({
     key = "prey",
     order = 51,
     func = function(self)
         if self.sprite_facing ~= "front" then return end
-        local h_mod = 0
-        if self.children.lobc_prey then
-            self.children.lobc_prey:draw_shader('dissolve', 0, nil, nil, self.children.center, 0.1, nil, nil, 0.1 + 0.03*math.sin(1.8*G.TIMERS.REAL) + self.T.h*-0.2-h_mod, nil, 0.6)
-            self.children.lobc_prey:draw_shader('dissolve', nil, nil, nil, self.children.center, 0.1, nil, nil, self.T.h*-0.2-h_mod)
-            h_mod = h_mod + 0.5
-        end
-        if self.children.lobc_prey_mark then
-            self.children.lobc_prey_mark:draw_shader('dissolve', 0, nil, nil, self.children.center, 0.1, nil, nil, 0.1 + 0.03*math.sin(1.8*G.TIMERS.REAL) + self.T.h*-0.2-h_mod, nil, 0.6)
-            self.children.lobc_prey_mark:draw_shader('dissolve', nil, nil, nil, self.children.center, 0.1, nil, nil, self.T.h*-0.2-h_mod)
-            h_mod = h_mod + 0.5
+        local h_mod = (self.config.center.abno and -0.15 or 0)
+        for _, v in ipairs({"lantern", "prey", "prey_mark", "villain"}) do
+            if self.children["lobc_"..v] then
+                self.children["lobc_"..v]:draw_shader('dissolve', 0, nil, nil, self.children.center, 0.1, nil, nil, 0.1 + 0.03*math.sin(1.8*G.TIMERS.REAL) + self.T.h*-0.2-h_mod, nil, 0.6)
+                self.children["lobc_"..v]:draw_shader('dissolve', nil, nil, nil, self.children.center, 0.1, nil, nil, self.T.h*-0.2-h_mod)
+                h_mod = h_mod + 0.5
+            end
         end
     end
 })
+
+-- Do not call Sprite:draw()
+for _, v in ipairs({"mood", "lobc_lantern", "lobc_prey", "lobc_prey_mark", "lobc_villain"}) do
+    SMODS.draw_ignore_keys[v] = true
+end
 
 --=============== HELPER FUNCTIONS ===============--
 
@@ -646,7 +679,7 @@ end
 function abno_breach(card, delay)
     G.E_MANAGER:add_event(Event({
         trigger = 'after', 
-        delay = (delay or 1)*G.SETTINGS.GAMESPEED,
+        delay = (delay or 1)*2,
         func = function()
             play_sound('tarot1')
             card.T.r = -0.2
@@ -688,6 +721,85 @@ function shallow_copy(t)
     return t2
 end
 
+-- Quickly rerolls a boss
+function lobc_reroll_boss(card)
+    local offset = 0
+    if card.config.center.key == "j_lobc_plague_doctor" then offset = 0.8 end
+    lobc_screen_text({text = localize('k_lobc_warning_1'), scale = 0.35, hold = 6*G.SETTINGS.GAMESPEED, major = G.play, align = 'cm', offset = {x = 0, y = -3.5 + offset}, noisy = false, float = false, colour = G.C.RED})
+    lobc_screen_text({text = localize{type = 'name_text', key = card.config.center.key, set = card.ability.set}..localize('k_lobc_warning_2'), scale = 0.35, hold = 6*G.SETTINGS.GAMESPEED, major = G.play, align = 'cm', offset = {x = 0, y = -3.1 + offset}, noisy = false, float = false, colour = G.C.WHITE})
+    G.from_boss_tag = true
+    G.FUNCS.reroll_boss()
+end
+
+--=============== CONDUCTOR ===============--
+
+lobc_conductor = {
+    track = '',
+    bpm = 0,
+    offset = 0, 
+    sec_per_beat = 0, 
+    beat = 0, 
+    pitch = 0,
+}
+
+-- Updates the conductor when sound changes
+local modulate_soundref = modulate_sound
+function modulate_sound(dt)
+    local prev_track = SMODS.previous_track
+    modulate_soundref(dt)
+    local cur_track = SMODS.previous_track
+    if prev_track ~= cur_track then
+        local sound = SMODS.Sounds[cur_track]
+        if sound and sound.sync_events then
+            lobc_conductor.track = cur_track
+            lobc_conductor.bpm = sound.bpm
+            lobc_conductor.pitch = sound.pitch
+            lobc_conductor.offset = sound.offset / sound.pitch
+            lobc_conductor.sec_per_beat = 60/(sound.bpm / sound.pitch)
+            lobc_conductor.beat = 0
+        end
+    end
+end
+
+local inc = 1
+local last_beat = 0
+function lobc_condupd(dt)
+    local sound = SMODS.Sounds[lobc_conductor.track]
+    -- Only activate for SMODS sounds, with bpm funcs
+    if sound and sound.sync_events then
+        local beat = lobc_conductor.beat
+        G.SOUND_MANAGER.channel:push({type = "get_conductor"})
+        while G.SOUND_MANAGER.conductor:getCount() > 0 do
+            req = G.SOUND_MANAGER.conductor:pop()
+        end
+        if not req then return end
+
+        -- Get Funky
+        if G.get_funky then
+            if beat - last_beat > (beat / 2) then
+                inc = 1
+            end
+            if last_beat < inc and inc <= beat then
+                --print(inc)
+                if inc % 4 == 1 then lobc_move_cards(inc) end
+                inc = inc + 1
+            end
+        end
+
+        if beat - last_beat < (beat / 2) then -- bandage fix for looping
+            for _, v in ipairs(SMODS.Sounds[lobc_conductor.track].sync_events) do
+                if v.beat > last_beat and v.beat <= beat then
+                    v.func()
+                end
+            end
+        end
+
+        local pos = req.pos - lobc_conductor.offset
+        last_beat = lobc_conductor.beat
+        lobc_conductor.beat = pos / lobc_conductor.sec_per_beat
+    end
+end
+
 --=============== BLINDS ===============--
 
 -- Overwrite blind spawning for Abnormality Boss Blinds if requirements are met
@@ -699,6 +811,10 @@ function get_new_boss()
     (G.GAME.pool_flags["plague_doctor_breach"] and not G.GAME.pool_flags["whitenight_defeated"]) then return "bl_lobc_whitenight" end
     if G.GAME.modifiers.lobc_placeholder or 
     (G.GAME.pool_flags["apocalypse_bird_event"] and not G.GAME.pool_flags["apocalypse_bird_defeated"]) then return "bl_lobc_apocalypse_bird" end
+    if G.GAME.modifiers.lobc_placeholder or
+    (G.GAME.pool_flags["queen_of_hatred_breach"] and not G.GAME.pool_flags["hatred_defeated"]) then return "bl_lobc_mg_hatred" end
+    if G.GAME.modifiers.lobc_placeholder or
+    (G.GAME.pool_flags["servant_of_wrath_breach"] and not G.GAME.pool_flags["wrath_defeated"]) then return "bl_lobc_mg_wrath" end
     if G.GAME.modifiers.lobc_production then
         local ante = G.GAME.round_resets.ante
         if ante <= 2 then return "bl_lobc_dawn_base" end
@@ -733,14 +849,14 @@ function reset_blinds()
            (G.GAME.modifiers.lobc_ordeals or pseudorandom("dawn_ordeal") < 0.125) and 
            not (G.GAME.round_resets.ante >= 8 and G.GAME.modifiers.lobc_tiphereth) then
                 G.GAME.round_resets.blind_choices.Small = 'bl_lobc_dawn_base'
-        else
+        elseif G.GAME.round_resets.blind_choices.Small == 'bl_lobc_dawn_base' then
             G.GAME.round_resets.blind_choices.Small = 'bl_small'
         end
 
         if G.GAME.round_resets.ante % 8 == 4 and G.GAME.round_resets.ante > 0 and
            (G.GAME.modifiers.lobc_ordeals or pseudorandom("noon_ordeal") < 0.125) then
             G.GAME.round_resets.blind_choices.Big = 'bl_lobc_noon_base'
-        else
+        elseif G.GAME.round_resets.blind_choices.Big == 'bl_lobc_noon_base' then
             G.GAME.round_resets.blind_choices.Big = 'bl_big'
         end
 
@@ -828,6 +944,43 @@ function Blind.alert_debuff(self, first)
     if self.config.blind.color and self.config.blind.color == "base" then return end
     if self.config.blind.phases then return end
     if self.config.blind.key == "bl_lobc_apocalypse_bird" or find_passive("psv_lobc_cracking_eggs") then return end
+    if self.config.blind.key == "bl_lobc_mg_hatred" then
+        self.block_play = true
+        G.E_MANAGER:add_event(Event({
+            blocking = false,
+            blockable = false,
+            func = function() 
+                if G.STATE == G.STATES.SELECTING_HAND then
+                    play_sound("lobc_hatred_entry", 1, 0.8)
+                    lobc_screen_text({text = localize('k_lobc_hatred_entry'), scale = 0.35, hold = 5*G.SETTINGS.GAMESPEED, major = G.play, align = 'cm', offset = {x = 0, y = -3.5}, noisy = false, colour = HEX("ffedf5")})
+                    G.E_MANAGER:add_event(Event({
+                        trigger = 'after',
+                        delay = 3*G.SETTINGS.GAMESPEED,
+                        blocking = false,
+                        blockable = false,
+                        func = function() 
+                            G.E_MANAGER:add_event(Event({
+                                trigger = 'after',
+                                delay = 1,
+                                blocking = false,
+                                blockable = false,
+                                func = (function()
+                                    self.block_play = nil
+                                    if G.buttons then
+                                        local _buttons = G.buttons:get_UIE_by_ID('play_button')
+                                        _buttons.disable_button = nil
+                                    end
+                                end)
+                            }))
+                            return true
+                        end
+                    }))
+                    return true
+                end
+            end
+        }))
+    end
+    if find_passive("psv_lobc_magical_girl") then return end
     if self.config.blind.key == "bl_lobc_whitenight" and next(SMODS.find_card("j_lobc_one_sin", true)) then
         self.block_play = true
         G.E_MANAGER:add_event(Event({
@@ -911,12 +1064,17 @@ function Blind.load(self, blindTable)
     self.lobc_score_cap = blindTable.lobc_score_cap
     self.lobc_current_effect = blindTable.lobc_current_effect
     self.lobc_has_sold_joker = blindTable.lobc_has_sold_joker
+    -- GasHarpoon
     self.p_sp = blindTable.p_sp
     self.b_sp = blindTable.b_sp
     self.ego = blindTable.ego
     self.in_panic = blindTable.in_panic
     self.skill_deck = blindTable.skill_deck
     self.shield_value = blindTable.shield_value
+    -- Hatred
+    self.hysteria = blindTable.hysteria
+    self.transformed = blindTable.transformed
+    self.alt_skill = blindTable.alt_skill
     blind_loadref(self, blindTable)
     ease_background_colour_blind()
     local obj = self.config.blind
@@ -1129,30 +1287,61 @@ function Card.align(self)
         self.children.mood.T.r = self.T.r
     end
 
-    if self.children.lobc_prey then 
-        self.children.lobc_prey.T.y = self.T.y
-        self.children.lobc_prey.T.x = self.T.x
-        self.children.lobc_prey.T.r = self.T.r
-    end
-
-    if self.children.lobc_prey_mark then 
-        self.children.lobc_prey_mark.T.y = self.T.y
-        self.children.lobc_prey_mark.T.x = self.T.x
-        self.children.lobc_prey_mark.T.r = self.T.r
+    for _, v in ipairs({"lantern", "prey", "prey_mark", "villain"}) do
+        if self.children["lobc_"..v] then
+            self.children["lobc_"..v].T.y = self.T.y
+            self.children["lobc_"..v].T.x = self.T.x
+            self.children["lobc_"..v].T.r = self.T.r
+        end
     end
 
     alignref(self)
 end
 
-local sprite_drawref = Sprite.draw
-function Sprite.draw(self, overlay)
-    if self.atlas == G.ASSET_ATLAS["lobc_LobotomyCorp_moodboard"] then return end
-    if self.atlas == G.ASSET_ATLAS["lobc_LobotomyCorp_yes_no"] then return end
-    if self.atlas == G.ASSET_ATLAS["lobc_LobotomyCorp_lights"] then return end
-    if self.atlas == G.ASSET_ATLAS["lobc_LobotomyCorp_wellcheers"] then return end
-    if self.atlas == G.ASSET_ATLAS["lobc_LobotomyCorp_modifiers"] and self.sprite_pos.x == 4 and self.sprite_pos.y == 0 then return end
-    if self.atlas == G.ASSET_ATLAS["lobc_LobotomyCorp_modifiers"] and self.sprite_pos.x == 5 and self.sprite_pos.y == 0 then return end
-    sprite_drawref(self, overlay)
+-- Restore several modifiers on card reload
+local card_updateref = Card.update
+function Card.update(self, dt)
+    card_updateref(self, dt)
+    -- Enchanted
+    if self.ability.big_bird_enchanted and not self.children.lobc_big_bird_particles and G.GAME.blind and G.GAME.blind.in_blind then
+        self.children.lobc_big_bird_particles = Particles(0, 0, 0,0, {
+            timer = self.ability.permanent_enchanted and 0.4 or 0.3,
+            scale = self.ability.permanent_enchanted and 0.3 or 0.45,
+            speed = 0.3,
+            lifespan = self.ability.permanent_enchanted and 3 or 4,
+            attach = self,
+            colours = {darken(G.C.MONEY, 0.1), darken(G.C.MONEY, 0.3), darken(G.C.MONEY, 0.5)},
+            fill = true
+        })
+    end
+    -- Marked
+    if self.ability.little_red_marked and not self.children.lobc_prey then
+        self.children.lobc_prey = Sprite(self.T.x, self.T.y, self.T.w, self.T.h, G.ASSET_ATLAS["lobc_LobotomyCorp_modifiers"], {x = 4, y = 0})
+        self.children.lobc_prey.role.major = self
+        self.children.lobc_prey.states.hover.can = false
+        self.children.lobc_prey.states.click.can = false
+    end
+    -- Lantern
+    if self.ability.meat_lantern_lantern and not self.children.lobc_lantern then
+        self.children.lobc_lantern = Sprite(self.T.x, self.T.y, self.T.w, self.T.h, G.ASSET_ATLAS["lobc_LobotomyCorp_modifiers"], {x = 7, y = 0})
+        self.children.lobc_lantern.role.major = self
+        self.children.lobc_lantern.states.hover.can = false
+        self.children.lobc_lantern.states.click.can = false
+    end
+    -- Villain
+    if self.ability.hatred_villain and not self.children.lobc_villain then
+        self.children.lobc_villain = Sprite(self.T.x, self.T.y, self.T.w, self.T.h, G.ASSET_ATLAS["lobc_LobotomyCorp_modifiers"], {x = 8, y = 0})
+        self.children.lobc_villain.role.major = self
+        self.children.lobc_villain.states.hover.can = false
+        self.children.lobc_villain.states.click.can = false
+    end
+    -- Prey Mark
+    if self.ability.prey_marked and not self.children.lobc_prey_mark then
+        self.children.lobc_prey_mark = Sprite(self.T.x, self.T.y, self.T.w, self.T.h, G.ASSET_ATLAS["lobc_LobotomyCorp_modifiers"], {x = 5, y = 0})
+        self.children.lobc_prey_mark.role.major = self
+        self.children.lobc_prey_mark.states.hover.can = false
+        self.children.lobc_prey_mark.states.click.can = false
+    end
 end
 
 -- Global start of hand effect
@@ -1454,14 +1643,8 @@ local colors = {
 local ease_background_colour_blindref = ease_background_colour_blind
 function ease_background_colour_blind(state, blind_override)
     if G.GAME.blind then
-        if G.GAME.blind.config.blind.key == "bl_lobc_whitenight" then
-            ease_background_colour({new_colour = darken(HEX("FFFFFF"), 0.2), special_colour = darken(HEX("FFFFFF"), 0.4), contrast = 0.7})
-            return
-        elseif G.GAME.blind.original_blind == "bl_lobc_apocalypse_bird" then
-            ease_background_colour({new_colour = darken(HEX("C8831B"), 0.1), special_colour = darken(HEX("C8831B"), 0.3), contrast = 1})
-            return
-        elseif G.GAME.blind.config.blind.key == "bl_lobc_what_blind" then
-            ease_background_colour({new_colour = darken(HEX("FCDBCB"), 0.1), special_colour = darken(HEX("FCDBCB"), 0.3), contrast = 0.5})
+        if G.GAME.blind.config.blind.lobc_bg then
+            ease_background_colour(G.GAME.blind.config.blind.lobc_bg)
             return
         elseif G.GAME.blind.config.blind.time and (G.GAME.blind.config.blind.time == "dawn" or G.GAME.blind.config.blind.time == "noon") and G.GAME.blind.config.blind.color ~= "base" then
             ease_background_colour{new_colour = lighten(mix_colours(G.GAME.blind.config.blind.boss_colour, G.C.BLACK, 0.3), 0.1), special_colour = G.GAME.blind.config.blind.boss_colour, contrast = 2}
@@ -1780,10 +1963,10 @@ end
 local game_updateref = Game.update
 function Game.update(self, dt)
     -- Apply blank font (Yesod)
-    if not G.SETTINGS.paused and G.GAME and G.GAME.modifiers.lobc_yesod and G.GAME.round_resets.ante > 6 and G.STATE ~= G.STATES.GAME_OVER then
+    if not G.SETTINGS.paused and G.GAME and G.GAME.modifiers.lobc_yesod and G.GAME.round_resets.ante > 6 and G.STATE ~= G.STATES.GAME_OVER and G.LANGUAGES and G.LANG and G.FONTS and G.SETTINGS then
         G.LANG.font = G.FONTS["blank"]
     else
-        G.LANG.font = G.LANGUAGES[G.SETTINGS.language].font
+        G.LANG.font = G.LANGUAGES[G.SETTINGS.language] and G.LANGUAGES[G.SETTINGS.language].font or G.FONTS[1]
     end
 
     -- Handle cutscenes
@@ -2031,7 +2214,7 @@ function boot_timer(_label, _next, progress)
             if (next(SMODS.find_card("j_lobc_censored", true)) and (not card.config or not card.config.center or card.config.center.key ~= "j_lobc_censored"))
             or (card.ability and card.ability.lobc_censored) then
                 local name_nodes = localize{type = 'name', key = "j_lobc_censored", set = "Joker", name_nodes = {}, vars = {}}
-                name_nodes[1].nodes[1].config.object.colours = {G.C.RED}
+                name_nodes[1].nodes[1].nodes[1].config.object.colours = {G.C.RED}
                 return {n=G.UIT.ROOT, config = {align = 'cm', colour = G.C.CLEAR}, nodes={
                     {n=G.UIT.C, config={align = "cm", object = Moveable(), ref_table = nil}, nodes = {
                         {n=G.UIT.R, config={padding = 0.05, r = 0.12, colour = G.C.BLACK, emboss = 0.07}, nodes={
@@ -2129,6 +2312,20 @@ function boot_timer(_label, _next, progress)
         for _, v in ipairs(metallic) do
             if G.localization.descriptions.Enhanced[v[1]] then
                 table.insert(G.localization.descriptions.Other.lobc_metallic.text, "{C:attention}"..G.localization.descriptions.Enhanced[v[1]].name..(v[2] and "{} ("..v[2]..")" or ""))
+            end
+        end
+
+        -- NotJustYet compat with phase blinds
+        local njy_endround_ref = G.FUNCS.njy_attempt_endround
+        if njy_endround_ref then
+            print("NotJustYet found!")
+            G.FUNCS.njy_attempt_endround = function(e)
+                if (G.GAME.blind.config.blind.summon or G.GAME.blind.config.blind.phases or G.GAME.blind.original_blind) then
+                    G.STATE = G.STATES.NEW_ROUND
+                    G.STATE_COMPLETE = false
+                else
+                    njy_endround_ref()
+                end
             end
         end
     end
@@ -2233,7 +2430,7 @@ local function get_abno_pool(_type, _rarity, legendary, key_append)
 
     if #_starting_pool == 0 then
         for _, v in ipairs(joker_list) do
-            if (_rarity and G.P_CENTERS["j_lobc_"..v].risk == _rarity) or not _rarity then 
+            if G.P_CENTERS["j_lobc_"..v] and ((_rarity and G.P_CENTERS["j_lobc_"..v].risk == _rarity) or not _rarity) then 
                 _starting_pool[#_starting_pool+1] = G.P_CENTERS["j_lobc_"..v]
             end
         end
@@ -2402,6 +2599,10 @@ SMODS.current_mod.credits_tab = function()
             {n = G.UIT.T, config = { text = localize('lobc_credits_7'), scale = 0.3, colour = G.C.UI.TEXT_LIGHT}},
             {n = G.UIT.T, config = { text = localize('lobc_credits_sil'), scale = 0.3, colour = G.C.DARK_EDITION}},
         }},
+        {n = G.UIT.R, config = {align = "cl", padding = 0.05}, nodes = {
+            {n = G.UIT.T, config = { text = localize('lobc_credits_9'), scale = 0.3, colour = G.C.UI.TEXT_LIGHT}},
+            {n = G.UIT.T, config = { text = localize('lobc_credits_a26'), scale = 0.3, colour = G.C.DARK_EDITION}},
+        }},
     }}
 end
 
@@ -2548,9 +2749,10 @@ SMODS.ConsumableType({
     primary_colour = HEX('424e54'),
     secondary_colour = HEX("dd4930"),
     loc_txt = {},
-    shop_rate = (SMODS.Mods.Cryptid or {}).can_load and 0.1 or 0,
+    shop_rate = 0,
     default = 'c_lobc_tt2',
     no_doe = true,
+    no_collection = true,
 })
 
 -- Shaders

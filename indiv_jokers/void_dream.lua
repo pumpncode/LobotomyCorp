@@ -12,10 +12,29 @@ local joker = {
 
 joker.calculate = function(self, card, context)
     if context.individual and context.cardarea == G.play and context.other_card then
-        if pseudorandom("void_dream") < G.GAME.probabilities["normal"] / card.ability.extra.chance then
+        if context.other_card.debuff then
             return {
-                dollars = card.ability.extra.dollars
+                message = localize('k_debuffed'),
+                colour = G.C.RED,
+                card = context.blueprint_card or card,
             }
+        else
+            if SMODS.pseudorandom_probability(card, "void_dream", 1, card.ability.extra.chance) then
+                G.GAME.dollar_buffer = (G.GAME.dollar_buffer or 0) + card.ability.extra.dollars
+                if not Handy or (Handy and Handy.animation_skip and not Handy.animation_skip.should_skip_messages()) then
+                    G.E_MANAGER:add_event(Event({
+                        func = (function()
+                            G.GAME.dollar_buffer = 0
+                            return true
+                        end)
+                    }))
+                else
+                    G.GAME.dollar_buffer = 0
+                end
+                return {
+                    dollars = card.ability.extra.dollars
+                }
+            end
         end
     end
 
@@ -50,7 +69,8 @@ joker.calculate = function(self, card, context)
 end
 
 joker.loc_vars = function(self, info_queue, card)
-    return {vars = {G.GAME.probabilities["normal"], card.ability.extra.chance, card.ability.extra.dollars}}
+    local numerator, denominator = SMODS.get_probability_vars(card, 1, card.ability.extra.chance)
+    return {vars = {numerator, denominator, card.ability.extra.dollars}}
 end
 
 return joker

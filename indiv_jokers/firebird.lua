@@ -1,6 +1,6 @@
 local joker = {
     name = "The Firebird",
-    config = {extra = {x_mult = 1, incr = 0.15}}, rarity = 3, cost = 7,
+    config = {extra = {x_mult = 1, incr = 0.2}}, rarity = 3, cost = 7,
     pos = {x = 3, y = 7}, 
     blueprint_compat = true, 
     eternal_compat = true,

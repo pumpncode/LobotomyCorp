@@ -40,9 +40,9 @@ joker.calculate = function(self, card, context)
         local non_eternal = {}
         local eternal = {}
         for _, v in ipairs(G.jokers.cards) do
-            if v.config.center.key == "j_lobc_little_red" and not v.ability.eternal then little_red[#little_red+1] = v end
+            if v.config.center.key == "j_lobc_little_red" and not SMODS.is_eternal(v, card) then little_red[#little_red+1] = v end
             if v ~= card and not v.being_devoured and not v.children.lobc_devoured then 
-                if v.ability.eternal then eternal[#eternal+1] = v 
+                if SMODS.is_eternal(v, card) then eternal[#eternal+1] = v 
                 else non_eternal[#non_eternal+1] = v end
             end
         end
@@ -159,7 +159,7 @@ function Card.load(self, cardTable, other_card)
 end
 
 joker.loc_vars = function(self, info_queue, card)
-    if card:check_rounds() >= 1 then info_queue[#info_queue+1] = {key = 'lobc_devoured', set = 'Other'} end
+    if not card.fake_card and card:check_rounds() >= 1 then info_queue[#info_queue+1] = {key = 'lobc_devoured', set = 'Other'} end
     info_queue[#info_queue+1] = {key = 'lobc_active_ability', set = 'Other'}
     local lr = next(SMODS.find_card("j_lobc_little_red")) or (card.children.lobc_devoured and card.children.lobc_devoured.cards[1] and card.children.lobc_devoured.cards[1].config.center.key == "j_lobc_little_red")
     return {vars = {card.ability.extra.chips_gain * (lr and 3 or 1), card.ability.extra.chips}, key = (lr and "j_lobc_big_bad_wolf_alt" or nil)}

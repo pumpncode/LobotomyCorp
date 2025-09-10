@@ -26,7 +26,8 @@ local blind = {
         "psv_lobc_misdeeds",
         "psv_lobc_judgement",
         "psv_lobc_suppression",
-    }
+    },
+    lobc_bg = {new_colour = darken(HEX("C8831B"), 0.1), special_colour = darken(HEX("C8831B"), 0.3), contrast = 1}
 }
 
 blind.lobc_loc_txt = function(self)
@@ -166,25 +167,28 @@ blind.get_loc_debuff_text = function(self)
     if G.beaked then return localize("k_lobc_misdeeds").." ("..localize(G.beaked, 'poker_hands')..')' end
 end
 
-blind.cry_cap_score = function(self, score)
+blind.mod_score = function(self, score)
     local final_mult = 1
     local proc = false
-    for _, v in ipairs(G.play.cards) do
-        if v:is_suit(suits[G.GAME.blind.hands_sub], true) then 
-            final_mult = final_mult - 0.3
-            proc = true
+    if G.play and G.play.cards then
+        for _, v in ipairs(G.play.cards) do
+            if v:is_suit(suits[G.GAME.blind.hands_sub], true) then 
+                final_mult = final_mult - 0.3
+                proc = true
+            end
+        end
+        score = score * final_mult
+        if proc then G.GAME.blind:juice_up() end
+        if find_passive("psv_lobc_lamp") then
+            return math.floor(math.min(G.GAME.blind.chips*(1/4) - G.GAME.chips, score)+0.5)
+        elseif find_passive("psv_lobc_misdeeds") then
+            return math.floor(math.min(G.GAME.blind.chips*(2/4) - G.GAME.chips, score)+0.5)
+        elseif find_passive("psv_lobc_judgement") then
+            return math.floor(math.min(G.GAME.blind.chips*(3/4) - G.GAME.chips, score)+0.5)
+        else return score
         end
     end
-    score = score * final_mult
-    if proc then G.GAME.blind:juice_up() end
-    if find_passive("psv_lobc_lamp") then
-        return math.floor(math.min(G.GAME.blind.chips*(1/4) - G.GAME.chips, score)+0.5)
-    elseif find_passive("psv_lobc_misdeeds") then
-        return math.floor(math.min(G.GAME.blind.chips*(2/4) - G.GAME.chips, score)+0.5)
-    elseif find_passive("psv_lobc_judgement") then
-        return math.floor(math.min(G.GAME.blind.chips*(3/4) - G.GAME.chips, score)+0.5)
-    else return score
-    end
+    return score
 end
 
 return blind

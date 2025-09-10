@@ -43,7 +43,7 @@ joker.calculate = function(self, card, context)
         end
     end
 
-    if context.destroying_card and not context.blueprint and not context.destroying_card.ability.eternal then
+    if context.destroying_card and not context.blueprint and not SMODS.is_eternal(context.destroying_card, card) then
         local id = context.destroying_card:get_id()
         if G.GAME.lobc_long_arms[id] and G.GAME.lobc_long_arms[id] >= 5 then
             return {
@@ -73,7 +73,7 @@ joker.add_to_deck = function(self, card, from_debuff)
 end
 
 joker.loc_vars = function(self, info_queue, card)
-    if card:check_rounds() >= 2 then info_queue[#info_queue+1] = {key = 'lobc_sin', set = 'Other'} end
+    if not card.fake_card and card:check_rounds() >= 2 then info_queue[#info_queue+1] = {key = 'lobc_sin', set = 'Other'} end
     return {vars = {card.ability.extra.x_mult_gain, card.ability.extra.x_mult}}
 end
 

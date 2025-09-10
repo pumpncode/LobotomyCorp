@@ -139,6 +139,9 @@ return {
             if config.no_music then return false end
             return (G.GAME.blind and G.GAME.blind.config.blind and G.GAME.blind.config.blind.key == "bl_lobc_what_blind") and 536000 or false
         end,
+        bpm = 176.25,
+        offset = -0.180,
+        sync_events = lobc_generate_compass_lyrics()
     },
 
     -- Roland01, Roland02, Roland03: Apocalypse Bird
@@ -170,6 +173,18 @@ return {
         select_music_track = function()
             if config.no_music then return false end
             return (G.GAME and G.GAME.blind and G.GAME.blind.config.blind.key == "bl_lobc_whitenight") and 1e6 or false
+        end,
+    },
+
+    -- Second Warning (Ruina): 
+    {
+        key = "music_second_warning_ruina",
+        select_music_track = function()
+            if config.no_music then return false end
+            for _, v in pairs({"hatred", "despair", "greed", "wrath"}) do
+                if G.GAME and G.GAME.blind and G.GAME.blind.config.blind.key == "bl_lobc_mg_"..v then return 1e6 end
+            end
+            return false
         end,
     },
 
@@ -262,4 +277,17 @@ return {
             lobc_music_neutral4 = true,
         }
     },
+
+    -- HYPERHASTIGHETS UPPGRADERINGAR (Get Funky)
+    {
+        key = "music_funky",
+        select_music_track = function()
+            if config.no_music then return false end
+            return G.get_funky and 100 or false
+        end,
+        pitch = 1,
+        bpm = 120,
+        offset = 0.033,
+        sync_events = {}
+    }
 }

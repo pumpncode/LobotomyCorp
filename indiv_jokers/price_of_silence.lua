@@ -2,14 +2,14 @@ local joker = {
     name = "The Price of Silence",
     config = {extra = {
         elapsed = 0, seconds = 0, active = false, converted = 0,
-    }}, rarity = 3, cost = 7,
+    }}, rarity = 3, cost = 8,
     pos = {x = 5, y = 8}, 
     blueprint_compat = false, 
     eternal_compat = true,
     perishable_compat = true,
     abno = true,
     risk = "he",
-    discover_rounds = {2, 4, 6},
+    discover_rounds = {3, 6, 7},
 }
 
 joker.update = function(self, card, dt)
@@ -18,7 +18,7 @@ joker.update = function(self, card, dt)
 
         local available_cards = {}
         for _, v in ipairs(G.jokers.cards) do
-            if v ~= card and not v.ability.eternal then available_cards[#available_cards+1] = v end
+            if v ~= card and not SMODS.is_eternal(v, card) then available_cards[#available_cards+1] = v end
         end
 
         if #available_cards == 0 then
@@ -95,15 +95,15 @@ joker.calculate = function(self, card, context)
             local rightmost = context.scoring_hand[#context.scoring_hand]
             for i=1, #context.scoring_hand do if context.scoring_hand[i].T.x < leftmost.T.x then leftmost = context.scoring_hand[i] end end
             for i=1, #context.scoring_hand do if context.scoring_hand[i].T.x > rightmost.T.x then rightmost = context.scoring_hand[i] end end
-            if rightmost ~= leftmost and not rightmost.ability.eternal then
+            if rightmost ~= leftmost and not SMODS.is_eternal(rightmost, card) then
                 G.E_MANAGER:add_event(Event({trigger = 'after', delay = 0.4, func = function()
                     play_sound('card1')
                     rightmost:flip()
                 return true end }))
                 G.E_MANAGER:add_event(Event({trigger = 'after', delay = 0.4, func = function()
                     copy_card(leftmost, rightmost)
-                    rightmost.ability.price_of_silence_amplified = true
-                    rightmost:lobc_check_amplified()
+                    --rightmost.ability.price_of_silence_amplified = true
+                    --rightmost:lobc_check_amplified()
                     rightmost:flip()
                 return true end }))
                 card.ability.extra.converted = card.ability.extra.converted + 1
@@ -116,15 +116,9 @@ joker.calculate = function(self, card, context)
 end
 
 joker.loc_vars = function(self, info_queue, card)
-    if card:check_rounds() >= 4 then info_queue[#info_queue+1] = {key = 'lobc_amplified', set = 'Other'} end
+    --if card:check_rounds() >= 4 then info_queue[#info_queue+1] = {key = 'lobc_amplified', set = 'Other'} end
     local check = (card.ability.extra.active and G.STAGE == G.STAGES.RUN and G.STATE == G.STATES.SELECTING_HAND)
-    return {main_end = 
-        {{n=G.UIT.C, config={align = "bm", minh = 0.4}, nodes={
-            {n=G.UIT.C, config={ref_table = self, align = "m", colour = check and G.C.GREEN or G.C.RED, r = 0.05, padding = 0.06}, nodes={
-                {n=G.UIT.T, config={text = ' '..localize(check and 'k_lobc_active' or 'k_lobc_inactive')..' ',colour = G.C.UI.TEXT_LIGHT, scale = 0.32*0.9}},
-            }}
-        }}
-    }}
+    return {}
 end
 
 -- The Price of Silence amplification

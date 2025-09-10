@@ -7,7 +7,7 @@ local joker = {
     perishable_compat = false,
     abno = true,
     risk = "aleph",
-    discover_rounds = {1, 3},
+    discover_rounds = {0, 1, 3},
     yes_pool_flag = "whitenight_defeated",
     no_pool_flag = "whitenight_confessed",
 }
@@ -20,7 +20,6 @@ joker.calculate = function(self, card, context)
     if context.cardarea == G.play and context.other_card and context.other_card.ability.plague_doctor_baptism then
         if context.individual then
             return {
-                message = localize{type = 'variable', key = 'a_mult', vars = {card.ability.extra.mult}},
                 mult = card.ability.extra.mult,
                 card = context.blueprint_card or card,
             }

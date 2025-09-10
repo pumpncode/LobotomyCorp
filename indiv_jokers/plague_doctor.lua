@@ -1,9 +1,9 @@
 local joker = {
     name = "Plague Doctor",
-    config = {extra = {mult = 20, apostles = 0}}, rarity = 1, cost = 4,
+    config = {extra = {mult = 20, apostles = 0}}, rarity = 1, cost = 6,
     pos = {x = 1, y = 2}, 
     blueprint_compat = true,
-    eternal_compat = false,
+    eternal_compat = true,
     perishable_compat = false,
     abno = true,
     risk = "zayin",
@@ -110,6 +110,7 @@ joker.calculate = function(self, card, context)
                     end
                 end
                 G.GAME.pool_flags["plague_doctor_breach"] = true
+                lobc_reroll_boss(card)
                 check_for_unlock({type = "lobc_bless"})
             end
         end
@@ -145,7 +146,7 @@ joker.discover_override = function(self, level, card)
 end
 
 joker.loc_vars = function(self, info_queue, card)
-    if card:check_rounds() >= 2 then info_queue[#info_queue+1] = {key = 'lobc_bless_order', set = 'Other'} end
+    if not card.fake_card and card:check_rounds() >= 2 then info_queue[#info_queue+1] = {key = 'lobc_bless_order', set = 'Other'} end
     return {vars = {card.ability.extra.mult, card.ability.extra.apostles}}
 end
 

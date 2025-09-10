@@ -2,7 +2,7 @@ local joker = {
     name = "Laetitia",
     config = {extra = {first = false, not_hearts = true, all_hearts = true}}, rarity = 3, cost = 8,
     pos = {x = 9, y = 3}, 
-    blueprint_compat = true, 
+    blueprint_compat = false, 
     eternal_compat = false,
     perishable_compat = false,
     abno = true,
@@ -13,7 +13,7 @@ local joker = {
 joker.calculate = function(self, card, context)
     if context.individual and context.cardarea == G.play and context.other_card and 
        context.other_card:is_suit("Hearts") and card.ability.extra.all_hearts and 
-       not context.other_card.ability.laetitia_gift then
+       not context.other_card.ability.laetitia_gift and not context.blueprint then
         local to_copy = context.other_card
         G.E_MANAGER:add_event(Event({
             func = function()
@@ -54,7 +54,7 @@ joker.calculate = function(self, card, context)
     end
 
     if context.destroying_card and not context.blueprint and 
-       card.ability.extra.not_hearts and not context.destroying_card.ability.eternal then
+       card.ability.extra.not_hearts and not SMODS.is_eternal(context.destroying_card, card) then
         return {
             remove = true
         }
