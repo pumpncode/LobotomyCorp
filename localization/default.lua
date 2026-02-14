@@ -260,6 +260,21 @@ return {
                     "when they die?",
                 }
             },
+            und_j_lobc_der_freischutz = {
+                name = "F-01-69",
+                text = {
+                    "\"This magical bullet can truly",
+                    "hit anyone, just like you say.\"",
+                }
+            },
+            und_j_lobc_knight_of_despair = {
+                name = "O-01-73",
+                text = {
+                    "All that remains is the",
+                    "hollow pride of a",
+                    "weathered knight."
+                }
+            },
             und_j_lobc_mosb = {
                 name = "T-01-75",
                 text = {
@@ -425,30 +440,123 @@ return {
             },
 
             ---- Boosters ----
-            p_lobc_extraction_normal = {
-                name = "Extraction Pack",
+            p_lobc_extraction_base = {
+                name = "Base Extraction Pack",
                 text = {
-                    "Choose {C:attention}#1#{} of up to",
-                    "{C:attention}#2#{C:joker} Abnormality{} cards"
+                    {"Choose {C:attention}#1#{} of up to",
+                    "{C:attention}#2#{C:joker} Abnormality{} cards",},
+                    {"Extraction chances:",
+                    "{C:zayin}ZAYIN{}: {V:1}#3#%",
+                    "{C:teth}TETH{}: {V:2}#4#%{}",
+                    "{C:he}HE{}: {V:3}#5#%",
+                    "{C:waw}WAW{}: {V:4}#6#%",
+                    "{C:aleph}ALEPH{}: {V:5}#7#%",}
+                }
+            },
+            p_lobc_extraction_risky = {
+                name = "Risky Extraction Pack",
+                text = {
+                    {"Choose {C:attention}#1#{} of up to",
+                    "{C:attention}#2#{C:joker} Abnormality{} cards",},
+                    {"Extraction chances:",
+                    "{C:zayin}ZAYIN{}: {V:1}#3#%",
+                    "{C:teth}TETH{}: {V:2}#4#%{}",
+                    "{C:he}HE{}: {V:3}#5#%",
+                    "{C:waw}WAW{}: {V:4}#6#%",
+                    "{C:aleph}ALEPH{}: {V:5}#7#%",}
+                }
+            },
+            p_lobc_extraction_calm = {
+                name = "Calm Extraction Pack",
+                text = {
+                    {"Choose {C:attention}#1#{} of up to",
+                    "{C:attention}#2#{C:joker} Abnormality{} cards",},
+                    {"Extraction chances:",
+                    "{C:zayin}ZAYIN{}: {V:1}#3#%",
+                    "{C:teth}TETH{}: {V:2}#4#%{}",
+                    "{C:he}HE{}: {V:3}#5#%",
+                    "{C:waw}WAW{}: {V:4}#6#%",
+                    "{C:aleph}ALEPH{}: {V:5}#7#%",}
+                }
+            },
+            p_lobc_extraction_mega = {
+                name = "Mega Extraction Pack",
+                text = {
+                    {"Choose {C:attention}#1#{} of up to",
+                    "{C:attention}#2#{C:joker} Abnormality{} cards",},
+                    {"Extraction chances:",
+                    "{C:zayin}ZAYIN{}: {V:1}#3#%",
+                    "{C:teth}TETH{}: {V:2}#4#%{}",
+                    "{C:he}HE{}: {V:3}#5#%",
+                    "{C:waw}WAW{}: {V:4}#6#%",
+                    "{C:aleph}ALEPH{}: {V:5}#7#%",}
+                }
+            },
+            p_lobc_extraction_base_elite = {
+                name = "Base Extraction Pack (Elite)",
+                text = {
+                    {"Must choose {C:attention}#1#{} of",
+                    "{C:attention}#2#{C:joker} Abnormality{} cards",},
+                    {"All {C:joker}Abnormality{} cards are",
+                    "{C:dark_edition}Negative{} and {C:attention}stickered{}"},
+                    {"Extraction chances:",
+                    "{C:zayin}ZAYIN{}: {V:1}#3#%",
+                    "{C:teth}TETH{}: {V:2}#4#%{}",
+                    "{C:he}HE{}: {V:3}#5#%",
+                    "{C:waw}WAW{}: {V:4}#6#%",
+                    "{C:aleph}ALEPH{}: {V:5}#7#%",}
+                }
+            },
+            p_lobc_extraction_risky_elite = {
+                name = "Risky Extraction Pack (Elite)",
+                text = {
+                    {"Must choose {C:attention}#1#{} of",
+                    "{C:attention}#2#{C:joker} Abnormality{} cards",},
+                    {"All {C:joker}Abnormality{} cards are",
+                    "{C:dark_edition}Negative{} and {C:attention}stickered{}"},
+                    {"Extraction chances:",
+                    "{C:zayin}ZAYIN{}: {V:1}#3#%",
+                    "{C:teth}TETH{}: {V:2}#4#%{}",
+                    "{C:he}HE{}: {V:3}#5#%",
+                    "{C:waw}WAW{}: {V:4}#6#%",
+                    "{C:aleph}ALEPH{}: {V:5}#7#%",}
+                }
+            },
+            p_lobc_extraction_calm_elite = {
+                name = "Calm Extraction Pack (Elite)",
+                text = {
+                    {"Must choose {C:attention}#1#{} of",
+                    "{C:attention}#2#{C:joker} Abnormality{} cards",},
+                    {"All {C:joker}Abnormality{} cards are",
+                    "{C:dark_edition}Negative{} and {C:attention}stickered{}"},
+                    {"Extraction chances:",
+                    "{C:zayin}ZAYIN{}: {V:1}#3#%",
+                    "{C:teth}TETH{}: {V:2}#4#%{}",
+                    "{C:he}HE{}: {V:3}#5#%",
+                    "{C:waw}WAW{}: {V:4}#6#%",
+                    "{C:aleph}ALEPH{}: {V:5}#7#%",}
+                }
+            },
+            p_lobc_extraction_mega_elite = {
+                name = "Mega Extraction Pack (Elite)",
+                text = {
+                    {"Must choose {C:attention}#1#{} of",
+                    "{C:attention}#2#{C:joker} Abnormality{} cards",},
+                    {"All {C:joker}Abnormality{} cards are",
+                    "{C:dark_edition}Negative{} and {C:attention}stickered{}"},
+                    {"Extraction chances:",
+                    "{C:zayin}ZAYIN{}: {V:1}#3#%",
+                    "{C:teth}TETH{}: {V:2}#4#%{}",
+                    "{C:he}HE{}: {V:3}#5#%",
+                    "{C:waw}WAW{}: {V:4}#6#%",
+                    "{C:aleph}ALEPH{}: {V:5}#7#%",}
                 }
             },
 
             ---- Observation Levels ----
-            lobc_obs_1 = {
+            lobc_obs = {
                 text = {
-                    "{C:inactive}- Observation Level 1 -",
-                    "{C:attention}#1#/#2#"
-                }
-            },
-            lobc_obs_2 = {
-                text = {
-                    "{C:inactive}- Observation Level 2 -",
-                    "{C:attention}#1#/#2#"
-                }
-            },
-            lobc_obs_3 = {
-                text = {
-                    "{C:inactive}- Observation Level 3 -",
+                    "{C:inactive}- Observation Level #3# -",
                     "{C:attention}#1#/#2#"
                 }
             },
@@ -650,7 +758,21 @@ return {
                 name = "Shield",
                 text = {
                     "Reduces final score by {C:blue}Shield",
-                    "{C:green}[Hand Start]{} Removes {C:blue}Shield"
+                    "At the end of hand,",
+                    "all {C:blue}Shield{} is removed"
+                }
+            },
+            lobc_blessing_1 = {
+                name = "Blessing",
+                text = {
+                    "{C:inactive}...{}"
+                }
+            },
+            lobc_blessing = {
+                name = "Blessing",
+                text = {
+                    "{X:mult,C:white} X3 {} Mult",
+                    "Cannot be {C:red}debuffed{}"
                 }
             },
             lobc_metallic = {
@@ -731,12 +853,12 @@ return {
             j_lobc_nameless_fetus = {
                 name = "Nameless Fetus",
                 text = {
-                    {"{X:mult,C:white} X#2# {} Mult after playing chosen hand type"},
+                    {"{X:mult,C:white} X#2# {} Mult after playing chosen hand type",
+                    "{C:inactive}(Chosen hand type: {C:attention}#1#{C:inactive})"},
                     {"{X:mult,C:white} X#3# {} Mult if other hand types are played"},
                     {"If the {C:attention}first hand{} of round has",
                     "only {C:attention}1{} card, destroy it",
-                    "and change chosen hand type",
-                    "{C:inactive}(Chosen hand type: {C:attention}#1#{C:inactive})"},
+                    "and change chosen hand type"},
                 }
             },
             j_lobc_wall_gazer_name_1 = {name = "Wall Gazer"},
@@ -754,12 +876,14 @@ return {
                 name = "Nothing There",
                 text = {
                     {"Copies the abilities of adjacent {C:attention}Jokers{}"},
-                    {"When {C:attention}Blind{} is defeated, moves to",
-                    "a random Joker Slot"},
-                    {"{C:red}Destroys{} Jokers copied last round and",
-                    "take its skin if this Abnormality",
-                    "is adjacent to one",
-                    "{C:inactive}(once per round)"}
+                    {"When hand starts, creates a {C:blue}Shield{} for",
+                    "the Blind equal to {X:attention,C:white} X#1# {} Blind Size",},
+                    {"Multiply above value by {X:attention,C:white} X#2# {} for",
+                    "each ability copied by this Abnormality"},
+                    {"When round ends, copies the skin of a",
+                    "random adjacent {C:attention}Joker",
+                    "{C:inactive}(Does not activate for Abnormalities)"},
+                    {"{C:green}#3# in #4#{} chance to swap positions with it",}
                 }
             },
             j_lobc_mhz = {
@@ -931,6 +1055,7 @@ return {
                     "Increases cost by {C:money}$#9#{} after use"},
                     {"When the {C:marked}Prey{} is destroyed, earn {C:money}$#1#{},",
                     "and this Abnormality gains {C:mult}+#2#{} Mult",
+                    "{s:0.6}",
                     "If the {C:marked}Prey{} is removed in any other way,",
                     "this Abnormality loses {C:mult}200{} Mult and",
                     "becomes {C:dark_edition}Eternal{}",
@@ -1039,6 +1164,37 @@ return {
                     "adds {C:dark_edition}Eternal{} to a random Joker"},
                 }
             },
+            j_lobc_der_freischutz = {
+                name = "Der Freischütz",
+                text = {
+                    {"{C:purple}[Active Ability]",
+                    "Costs {C:money}#2#%{} of current {C:money}$ {C:inactive,s:0.9}(min. {C:money,s:0.9}$#4#{C:inactive,s:0.9}, rounded down)",
+                    "Next hand, {C:red}destroys{} all {C:attention}Enhanced{} cards, then",
+                    "enhances all unenhanced cards to {C:attention}Mult Cards{}"},
+                    {"{C:attention}Mult Cards{} give {X:mult,C:white} X#1# {} Mult"},
+                    {"Every {C:purple}Active Ability{}, or every hand",
+                    "that contains a scoring non-{C:attention}Mult Card{}",
+                    "increases {C:prey_mark}Magic Bullet{} by {C:attention}1",
+                    "{C:inactive}(Currently {C:attention}#3# {C:inactive}Magic Bullet)",},
+                    {"At {C:attention}7 {C:prey_mark}Magic Bullet{}, automatically uses",
+                    "{C:purple}Active Ability{} that targets {C:attention}7{} random",
+                    "playing cards instead, then resets {C:prey_mark}Magic Bullet"},
+                }
+            },
+            j_lobc_knight_of_despair = {
+                name = "The Knight of Despair",
+                text = {
+                    {"When a card is used, sold, or destroyed,",
+                    "this Abnormality gains {C:attention}1 {C:o_indigo}Deep Tears",
+                    "{C:inactive}(Currently {C:attention}#1# {C:inactive}Deep Tears)"},
+                    {"At {C:attention}10+ {C:o_indigo}Deep Tears{}, consume all of it",
+                    "to give the first scoring card {C:blessing}Blessing"},
+                    {"If a card with {C:blessing}Blessing{} is removed,",
+                    "this Abnormality {C:attention}breaches"},
+                    {"When this Abnormality is removed,",
+                    "{C:red}destroy{} all cards with {C:blessing}Blessing{}"},
+                }
+            },
             j_lobc_mosb = {
                 name = "The Mountain of Smiling Bodies",
                 text = {
@@ -1138,12 +1294,12 @@ return {
             j_lobc_scarecrow_searching = {
                 name = "Scarecrow Searching for Wisdom",
                 text = {
-                    {"After each Blind, create {C:attention}2{}",
-                    "{C:tarot}Wisdom{} cards {C:inactive}(Must have room)"},
+                    {"After each Blind, create a",
+                    "{C:tarot}Wisdom{} card {C:inactive}(Must have room)"},
                     {"After each hand, destroy a {C:tarot}Wisdom{} to give",
                     "scoring cards an {C:red}Enhancement{}, {C:blue}Seal{} or {C:dark_edition}Edition{}"},
                     {"If there are none, increase Blind Size by",
-                    "{C:attention}10%{} per {C:tarot}Wisdom{} created {C:inactive}(once per round){}",
+                    "{C:attention}50%{} per {C:tarot}Wisdom{} created {C:inactive}(once per round){}",
                     "{C:inactive}({C:tarot}Wisdoms{C:inactive} created: {C:attention}#1#{C:inactive})"}
                 }
             },
@@ -1956,7 +2112,7 @@ return {
                 name = "When Two Realms Meet",
                 text = {
                     "On the first hand, score does not increase,",
-                    "and {C:blue}+1{} hand when hand is played",
+                    "and does not cost hands",
                     "After the first hand, change Blind effect"
                 }
             },
@@ -2308,6 +2464,7 @@ return {
             lobc_prey_mark = "Prey Mark",
             lobc_lantern = "Lantern",
             lobc_villain = "Villain",
+            lobc_blessing = "Blessing",
             lobc_zayin = "ZAYIN",
             lobc_teth = "TETH",
             lobc_he = "HE",
@@ -2341,8 +2498,9 @@ return {
             ch_c_lobc_all_whitenight_5 = {"{C:inactive}({C:dark_edition}WhiteNight{C:inactive} cannot go below {C:attention}X6.66{C:inactive} Blind Size from {C:attention}Apostles{C:inactive})"},
 
             -- Energy Production
-            ch_c_lobc_production = {"After each {C:attention}Ante{}, open an {C:attention}Extraction Pack"},
-            ch_c_lobc_production_2 = {"All {C:attention}Boss Blinds{} are replaced with {C:attention}Ordeals{}"},
+            ch_c_lobc_production = {"After each {C:attention}Ante{}, open a {C:attention}Base Extraction Pack (Elite)"},
+            ch_c_lobc_production_2 = {"{C:attention}Base Extraction Pack (Elite){} does not apply {C:attention}Stickers"},
+            ch_c_lobc_production_3 = {"All {C:attention}Boss Blinds{} are replaced with {C:attention}Ordeals{}"},
 
             -- Malkuth
             ch_c_lobc_malkuth = {"After Ante {C:attention}3{}, all {C:attention}Consumables{} are faced down"},
@@ -2352,7 +2510,7 @@ return {
             -- Yesod
             ch_c_lobc_yesod = {"Most sprites are modified"},
             ch_c_lobc_yesod_2 = {"No cards can have {C:dark_edition}Editions{}"},
-            ch_c_lobc_yesod_3 = {"After Ante {C:attention}3{}, removes all {C:attention}Jokers{}' text"},
+            ch_c_lobc_yesod_3 = {"After Ante {C:attention}3{}, removes all descriptions"},
             ch_c_lobc_yesod_4 = {"After Ante {C:attention}6{}, removes all text"},
 
             -- Hod
@@ -2385,10 +2543,15 @@ return {
             k_lobc_rank_sin = "Rank's Sin: ",
             k_ego_gift = "E.G.O Gift",
             b_ego_gift_cards = "E.G.O Gifts",
-            k_activated = "Activated!",
-            k_conduct = "Conduct!",
-            k_ambush = "Ambushed!",
-            k_shelter = "Sheltered!",
+            k_lobc_activated = "Activated!",
+            k_lobc_conduct = "Conduct!",
+            k_lobc_ambush = "Ambushed!",
+            k_lobc_shelter = "Sheltered!",
+            k_lobc_evade = "Evaded!",
+            k_lobc_fail_evade = "Failed Evade!",
+            k_lobc_skill_disable = "Skill Disabled!",
+            k_lobc_reset_sp = "Reset SP",
+            k_lobc_blessed = "Blessed!",
 
             k_lobc_lamp = "Passive: [A Lamp that Burns Forever]",
             k_lobc_misdeeds = "Passive: [Misdeeds Not Allowed!]",
@@ -2471,8 +2634,8 @@ return {
             -- Noon
             k_lobc_noon_green = "The Noon of Green",
             k_lobc_noon_green_name = "Process of Understanding",
-            k_lobc_noon_green_start_1 = "In the end, they were bound to life. We existed only to express despair and ire.",
-            k_lobc_noon_green_start_2 = "We will understand life and the soul with our own hands.",
+            k_lobc_noon_green_start_1 = "In the end, they were bound to life.",
+            k_lobc_noon_green_start_2 = "We existed only to express despair and ire.",
             k_lobc_noon_green_end_1 = "We will understand life and the soul with our own hands.",
             k_lobc_noon_green_end_2 = "",
 
@@ -2622,6 +2785,42 @@ return {
             k_lobc_apocalypse_bird_11 = "I whisper, without cessation...",
             k_lobc_apocalypse_bird_12 = "I condemn you, but you will still commit more sin without end...",
 
+            k_lobc_ab_cutscene_0_0_1 = "",
+            k_lobc_ab_cutscene_0_0_2 = "Once upon a time, three happy birds lived",
+            k_lobc_ab_cutscene_0_0_3 = "in a warm and lush forest.",
+
+            k_lobc_ab_cutscene_1_0_1 = "Big Bird, with its many eyes, decided to watch over the forest for",
+            k_lobc_ab_cutscene_1_0_2 = "intruders.",
+            k_lobc_ab_cutscene_1_0_3 = "For Big Bird's eyes could see very far, and see things we cannot see.",
+
+            k_lobc_ab_cutscene_2_0_1 = "",
+            k_lobc_ab_cutscene_2_0_2 = "Small Bird decided to punish the creatures'",
+            k_lobc_ab_cutscene_2_0_3 = "wrongdoings with its beak.",
+
+            k_lobc_ab_cutscene_3_0_1 = "To keep the forest's peace, Long Bird weighed the sins of those who entered the",
+            k_lobc_ab_cutscene_3_0_2 = "forest.",
+            k_lobc_ab_cutscene_3_0_3 = "For Long Bird's scale was fair and just, and could weigh any and all kinds of sin.",
+
+            k_lobc_ab_cutscene_4_0_1 = "",
+            k_lobc_ab_cutscene_4_0_2 = "The head that always gazed upon the",
+            k_lobc_ab_cutscene_4_0_3 = "cosmos was lowered,",
+
+            k_lobc_ab_cutscene_0_1_1 = "Then, in the middle of all the chaotic cries, someone shouted:",
+            k_lobc_ab_cutscene_0_1_2 = "\"It's the beast! A big, scary monster lives in the black, dusky ",
+            k_lobc_ab_cutscene_0_1_3 = "forest!\"",
+
+            k_lobc_ab_cutscene_1_1_1 = "",
+            k_lobc_ab_cutscene_1_1_2 = "",
+            k_lobc_ab_cutscene_1_1_3 = "Big Bird's far seeing eyes were blinded,",
+
+            k_lobc_ab_cutscene_2_1_1 = "",
+            k_lobc_ab_cutscene_2_1_2 = "Small Bird's mouth that could devour",
+            k_lobc_ab_cutscene_2_1_3 = "anything was shut,",
+
+            k_lobc_ab_cutscene_3_1_1 = "The bird began to prowl the forest, but there was nothing.",
+            k_lobc_ab_cutscene_3_1_2 = "There were no creatures, no sun and moon, and no beast.",
+            k_lobc_ab_cutscene_3_1_3 = "All that was left was just a bird and the Black Forest.",
+
             ---- Hatred ----
             k_lobc_hatred_entry = "In the name of Love and Justice~ Here comes Magical Girl!",
             k_lobc_hatred_s1 = "With Love!",
@@ -2766,12 +2965,35 @@ return {
 
             k_lobc_gebura_4_1 = "The right path is too far away, and I have too far to go.",
             k_lobc_gebura_4_2 = "My heart is pulsing with anger, and I must keep pushing.",
+
+            ---- Compass ----
+            k_lobc_compass_1 = "Bon Voyage",
+            k_lobc_compass_2 = "Your mermaid's setting sail",
+            k_lobc_compass_3 = "At last",
+            k_lobc_compass_4 = "Full speed towards your heart",
+            k_lobc_compass_5 = "I've had enough",
+            k_lobc_compass_6 = "I'm reclaiming myself",
+            k_lobc_compass_7 = "The aft",
+            k_lobc_compass_8 = "Leaving behind the hurt",
+            k_lobc_compass_9 = "When it snapped",
+            k_lobc_compass_10 = "My compass was swallowed by the sea",
+            k_lobc_compass_11 = "I cursed this relationship between you and me",
+            k_lobc_compass_12 = "I wanted blood",
+            k_lobc_compass_13 = "I wanted black and white",
+            k_lobc_compass_14 = "Clear cut",
+            k_lobc_compass_15 = "Your evils predefined",
+            k_lobc_compass_16 = "Hold on tight",
+            k_lobc_compass_17 = "My compass is curiosity",
+            k_lobc_compass_18 = "I'm piercing through the rope that strangled you and me",
+            k_lobc_compass_19 = "Let us be free",
+            k_lobc_compass_20 = "High tide, low tide",
         },
         achievement_names = {
             ach_lobc_penitence = "Penitence",
             ach_lobc_love_and_hate = "In the Name of Love and Hate",
             ach_lobc_bear_paws = "Bear Paws",
             ach_lobc_solitude = "Solitude",
+            ach_lobc_mimicry = "Mimicry",
             ach_lobc_lamp = "Lamp",
             ach_lobc_grinder_mk4 = "Grinder Mk4",
             ach_lobc_red_eyes = "Red Eyes",
@@ -2788,6 +3010,8 @@ return {
             ach_lobc_dead_silence = "Dead Silence",
             ach_lobc_laetitia = "Laetitia",
             ach_lobc_solemn_lament = "Solemn Lament",
+            ach_lobc_magic_bullet = "Magic Bullet",
+            ach_lobc_sword_sharpened = "The Sword Sharpened with Tears",
             ach_lobc_smile = "Smile",
             ach_lobc_aspiration = "Aspiration",
             ach_lobc_wingbeat = "Wingbeat",
@@ -2817,6 +3041,7 @@ return {
             ach_lobc_love_and_hate = "Have The Queen of Hatred for 9 rounds in one game without going into Hysteria",
             ach_lobc_bear_paws = "Upgrade the same hand type using Happy Teddy Bear 10 times in one game without resetting it",
             ach_lobc_solitude = "Reach -20 Mult or lower on Old Lady",
+            ach_lobc_mimicry = "Reach Shield equal to X20 Blind Size on Nothing There",
             ach_lobc_lamp = "With Big Bird, score the same Enchanted card 3 times in one round",
             ach_lobc_grinder_mk4 = "Reach X5 Mult or higher on All-Around Helper",
             ach_lobc_red_eyes = "Destroy 10 cards in one game with Spider Bud",
@@ -2833,6 +3058,8 @@ return {
             ach_lobc_dead_silence = "Convert 10 cards using The Price of Silence in one game without destroying a Joker",
             ach_lobc_laetitia = "Have 30 or more cards in deck be A Wee Witch's Gift",
             ach_lobc_solemn_lament = "Fill all Joker slots and make all non-Negative Jokers Eternal using Funeral of the Dead Butterflies",
+            ach_lobc_magic_bullet = "Automatically activate Der Freischütz's Active Ability and have it destroy 7 playing cards",
+            ach_lobc_sword_sharpened = "Have 30 or more Deep Tears at once on The Knight of Despair",
             ach_lobc_smile = "Reach +15 Mult per card destroyed or higher on The Mountain of Smiling Bodies",
             ach_lobc_aspiration = "Have The Heart of Aspiration for 6 rounds in one game with at most 4 hands after each Blind",
             ach_lobc_wingbeat = "Buy 8 or more items affected by Fairy Festival without any being destroyed",
@@ -2861,6 +3088,10 @@ return {
             lobc_sp = "Your SP - #1# (#3#%) #2# - Blind SP",
             lobc_shield = "Shield Value: #1#",
             lobc_round = "+#1# Round#2#",
+            lobc_a_sp = "+#1# SP",
+            lobc_a_sp_minus = "-#1# SP",
+            lobc_a_deep_tears = "+#1# Deep Tears",
+            lobc_a_magic_bullet = "+#1# Magic Bullet"
         }
     },
 }

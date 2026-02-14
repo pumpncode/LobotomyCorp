@@ -432,21 +432,9 @@ return {
             },
 
             ---- Observation Levels ----
-            lobc_obs_1 = {
+            lobc_obs = {
                 text = {
-                    "{C:inactive}- 观测等级 1 -",
-                    "{C:attention}#1#/#2#"
-                }
-            },
-            lobc_obs_2 = {
-                text = {
-                    "{C:inactive}- 观测等级 2 -",
-                    "{C:attention}#1#/#2#"
-                }
-            },
-            lobc_obs_3 = {
-                text = {
-                    "{C:inactive}- 观测等级 3 -",
+                    "{C:inactive}- 观测等级 #3# -",
                     "{C:attention}#1#/#2#"
                 }
             },
@@ -2236,10 +2224,10 @@ return {
             k_lobc_rank_sin = "点数罪孽：",
             k_ego_gift = "E.G.O 礼物",
             b_ego_gift_cards = "E.G.O 礼物",
-            k_activated = "已激活！",
-            k_conduct = "执行！",
-            k_ambush = "伏击！",
-            k_shelter = "庇护！",
+            k_lobc_activated = "已激活！",
+            k_lobc_conduct = "执行！",
+            k_lobc_ambush = "伏击！",
+            k_lobc_shelter = "庇护！",
 
             k_lobc_lamp = "被动：[永燃之灯]",
             k_lobc_misdeeds = "被动：[禁止恶行！]",
